@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecureScan — AI Code Security Reviewer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'IBM Plex Sans', sans-serif; background: #0a0e14; color: #e0e6f0; min-height: 100vh; }
+
+    /* ── Header ── */
+    .header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 32px;
+      border-bottom: 1px solid #1e2733;
+      position: sticky; top: 0; background: #0a0e14; z-index: 10;
+    }
+    .logo-mark { width: 32px; height: 32px; background: #00d4ff; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .logo-mark svg { width: 18px; height: 18px; }
+    .header-title { font-size: 15px; font-weight: 600; color: #fff; letter-spacing: 0.02em; }
+    .header-sub { font-size: 10px; color: #4a6080; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px; }
+    .badge { font-size: 10px; font-family: 'IBM Plex Mono', monospace; padding: 3px 9px; background: #0d2a1a; color: #00ff88; border: 1px solid #00ff8840; border-radius: 4px; letter-spacing: 0.05em; }
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .key-indicator {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; font-family: 'IBM Plex Mono', monospace;
+      color: #4a6080;
+    }
+    .key-dot { width: 6px; height: 6px; border-radius: 50%; background: #00ff88; }
+    .reset-key-btn {
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+      color: #2a3a50; background: transparent;
+      border: 1px solid #1e2733; border-radius: 5px;
+      padding: 5px 10px; cursor: pointer; transition: all 0.15s;
+    }
+    .reset-key-btn:hover { color: #ff4444; border-color: #ff444440; }
+
+    /* ── Layout ── */
+    .layout { display: grid; grid-template-columns: 1fr 270px; gap: 24px; max-width: 1100px; margin: 0 auto; padding: 24px 32px 60px; }
+    .main-col { min-width: 0; }
+    .side-col { min-width: 0; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; border: 1px solid #1e2733; border-radius: 8px; overflow: hidden; margin-bottom: 14px; width: fit-content; }
+    .tab { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 7px 20px; background: transparent; color: #4a6080; border: none; cursor: pointer; letter-spacing: 0.04em; transition: all 0.15s; }
+    .tab.active { background: #00d4ff18; color: #00d4ff; }
+    .tab:hover:not(.active) { color: #8099b8; }
+
+    /* ── Code editor ── */
+    .code-wrap { border: 1px solid #1e2733; border-radius: 10px; overflow: hidden; background: #060a0f; margin-bottom: 14px; transition: border-color 0.15s; }
+    .code-wrap:focus-within { border-color: #00d4ff40; }
+    .code-header { display: flex; align-items: center; gap: 8px; padding: 9px 14px; background: #0d1520; border-bottom: 1px solid #1e2733; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .lang-select { margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: #0a0e14; color: #4a6080; border: 1px solid #1e2733; border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+    .lang-select:focus { outline: none; border-color: #00d4ff40; color: #00d4ff; }
+    #code-input { font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.75; width: 100%; min-height: 220px; background: transparent; color: #c9d8ec; border: none; padding: 16px 18px; resize: vertical; outline: none; }
+    #code-input::placeholder { color: #2a3a50; }
+
+    /* ── Upload ── */
+    .upload-zone { display: none; border: 1.5px dashed #1e2733; border-radius: 10px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: #060a0f; margin-bottom: 14px; }
+    .upload-zone:hover, .upload-zone.drag { border-color: #00d4ff60; background: #00d4ff06; }
+    .upload-zone.active { display: block; }
+    .upload-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.35; }
+    .upload-label { font-size: 13px; color: #4a6080; }
+    .upload-label span { color: #00d4ff; cursor: pointer; }
+    .file-types { font-size: 11px; color: #2a3a50; margin-top: 6px; font-family: 'IBM Plex Mono', monospace; }
+    #file-input { display: none; }
+    .file-loaded { font-size: 12px; color: #00ff88; margin-top: 8px; font-family: 'IBM Plex Mono', monospace; }
+
+    /* ── Scan row ── */
+    .scan-row { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+    .scan-btn { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; padding: 11px 28px; background: #00d4ff; color: #060a0f; border: none; border-radius: 7px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.15s; }
+    .scan-btn:hover { background: #33ddff; transform: translateY(-1px); }
+    .scan-btn:active { transform: translateY(0); }
+    .scan-btn:disabled { background: #1e2733; color: #2a3a50; cursor: not-allowed; transform: none; }
+    .scan-hint { font-size: 11px; color: #2a3a50; font-family: 'IBM Plex Mono', monospace; }
+    .spinner { width: 14px; height: 14px; border: 2px solid rgba(6,8,11,0.3); border-top-color: #060a0f; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results ── */
+    .results { display: none; }
+    .results-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #1e2733; }
+    .results-title { font-size: 15px; font-weight: 600; color: #fff; }
+    .grade-badge { width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; flex-shrink: 0; }
+    .grade-A { background: #0d2a1a; color: #00ff88; border: 1px solid #00ff8840; }
+    .grade-B { background: #0a1a10; color: #44dd88; border: 1px solid #44dd8840; }
+    .grade-C { background: #1a1a00; color: #ffee00; border: 1px solid #ffee0040; }
+    .grade-D { background: #2a1a00; color: #ff9900; border: 1px solid #ff990040; }
+    .grade-F { background: #2a0a0a; color: #ff4444; border: 1px solid #ff444440; }
+    .score-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 4px; letter-spacing: 0.04em; }
+    .chip-critical { background: #2a0a0a; color: #ff4444; border: 1px solid #ff444430; }
+    .chip-high     { background: #2a1a00; color: #ff9900; border: 1px solid #ff990030; }
+    .chip-medium   { background: #1a1a00; color: #ffee00; border: 1px solid #ffee0030; }
+    .chip-low      { background: #0a1a10; color: #00ff88; border: 1px solid #00ff8830; }
+    .export-btn { margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #4a6080; background: transparent; border: 1px solid #1e2733; border-radius: 5px; padding: 6px 12px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .export-btn:hover { color: #00d4ff; border-color: #00d4ff40; }
+    .summary-bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #0d1520; border: 1px solid #1e2733; border-radius: 8px; margin-bottom: 14px; font-size: 13px; color: #4a6080; }
+    .summary-bar strong { color: #c9d8ec; font-weight: 500; }
+    .vuln-list { display: flex; flex-direction: column; gap: 10px; }
+    .vuln-card { border: 1px solid #1e2733; border-radius: 9px; overflow: hidden; background: #060a0f; animation: fadeIn 0.3s ease both; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .vuln-card-header { display: flex; align-items: center; gap: 10px; padding: 13px 16px; cursor: pointer; user-select: none; transition: background 0.12s; }
+    .vuln-card-header:hover { background: #0d1520; }
+    .sev-badge { font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+    .sev-CRITICAL { background: #2a0a0a; color: #ff4444; border: 1px solid #ff444430; }
+    .sev-HIGH     { background: #2a1a00; color: #ff9900; border: 1px solid #ff990030; }
+    .sev-MEDIUM   { background: #1a1a00; color: #ffee00; border: 1px solid #ffee0030; }
+    .sev-LOW      { background: #0a1a10; color: #00ff88; border: 1px solid #00ff8830; }
+    .vuln-name { font-size: 13px; font-weight: 500; color: #c9d8ec; flex: 1; }
+    .vuln-type { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #2a3a50; }
+    .chevron { font-size: 11px; color: #2a3a50; transition: transform 0.2s; }
+    .vuln-card.open .chevron { transform: rotate(90deg); }
+    .vuln-body { display: none; padding: 0 16px 16px; border-top: 1px solid #1e2733; }
+    .vuln-card.open .vuln-body { display: block; }
+    .vuln-section { margin-top: 14px; }
+    .vuln-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #2a3a50; margin-bottom: 7px; font-family: 'IBM Plex Mono', monospace; }
+    .vuln-desc { font-size: 13px; color: #8099b8; line-height: 1.75; }
+    .vuln-fix { font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.7; color: #00ff88; background: #0d2a1a; border: 1px solid #00ff8818; border-radius: 7px; padding: 12px 14px; white-space: pre-wrap; word-break: break-word; }
+    .vuln-line { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4a6080; background: #0d1520; border-radius: 4px; padding: 4px 10px; display: inline-block; }
+    .clean-banner { display: flex; align-items: center; gap: 14px; padding: 18px 20px; background: #0d2a1a; border: 1px solid #00ff8830; border-radius: 9px; font-size: 14px; color: #00ff88; }
+    .error-banner { padding: 14px 18px; background: #2a0a0a; border: 1px solid #ff444430; border-radius: 9px; font-size: 12px; color: #ff4444; font-family: 'IBM Plex Mono', monospace; line-height: 1.6; }
+
+    /* ── Sidebar history ── */
+    .history-panel { position: sticky; top: 80px; }
+    .history-title { font-size: 11px; font-family: 'IBM Plex Mono', monospace; color: #4a6080; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .history-clear { font-size: 10px; color: #2a3a50; background: transparent; border: none; cursor: pointer; font-family: 'IBM Plex Mono', monospace; padding: 0; transition: color 0.15s; }
+    .history-clear:hover { color: #ff4444; }
+    .history-empty { font-size: 12px; color: #2a3a50; font-family: 'IBM Plex Mono', monospace; text-align: center; padding: 24px 0; border: 1px dashed #1e2733; border-radius: 8px; }
+    .history-list { display: flex; flex-direction: column; gap: 8px; }
+    .history-item { background: #060a0f; border: 1px solid #1e2733; border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: border-color 0.15s; }
+    .history-item:hover { border-color: #00d4ff40; }
+    .history-item-top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+    .history-grade { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; width: 22px; text-align: center; }
+    .history-lang { font-size: 11px; color: #c9d8ec; font-weight: 500; flex: 1; }
+    .history-time { font-size: 10px; color: #2a3a50; font-family: 'IBM Plex Mono', monospace; }
+    .history-summary { font-size: 11px; color: #4a6080; line-height: 1.5; }
+    .history-chips { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+    .history-chip { font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 1px 6px; border-radius: 3px; }
+
+    /* ── Print ── */
+    @media print {
+      body { background: #fff; color: #000; }
+      .header, .tabs, .code-wrap, .upload-zone, .scan-row, .side-col, .export-btn { display: none !important; }
+      .layout { display: block; padding: 0; }
+      .results { display: block !important; }
+      .vuln-body { display: block !important; }
+      .chevron { display: none; }
+      .results-title { color: #000; font-size: 18px; }
+      .grade-A, .grade-B { color: #006600 !important; background: #e6ffe6 !important; border-color: #006600 !important; }
+      .grade-C { color: #666600 !important; background: #ffffe6 !important; border-color: #666600 !important; }
+      .grade-D, .grade-F { color: #cc0000 !important; background: #ffe6e6 !important; border-color: #cc0000 !important; }
+      .vuln-card { border: 1px solid #ccc; page-break-inside: avoid; margin-bottom: 12px; }
+      .vuln-card-header { background: #f5f5f5 !important; }
+      .sev-CRITICAL { background: #ffe6e6 !important; color: #cc0000 !important; }
+      .sev-HIGH { background: #fff0e6 !important; color: #cc6600 !important; }
+      .sev-MEDIUM { background: #ffffe6 !important; color: #666600 !important; }
+      .sev-LOW { background: #e6ffe6 !important; color: #006600 !important; }
+      .vuln-name, .vuln-desc { color: #000 !important; }
+      .vuln-fix { background: #f0fff4 !important; color: #006600 !important; }
+      .summary-bar { background: #f5f5f5 !important; border-color: #ccc !important; color: #333 !important; }
+      .summary-bar strong { color: #000 !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo-mark">
+      <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 2L14 5V9C14 12 11.5 14.5 9 16C6.5 14.5 4 12 4 9V5L9 2Z" stroke="#060a0f" stroke-width="1.5" fill="none"/>
+        <path d="M7 9L8.5 10.5L11 7.5" stroke="#060a0f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title">SecureScan</div>
+      <div class="header-sub">AI Code Security Reviewer</div>
+    </div>
+    <div class="header-right">
+      <div class="key-indicator"><div class="key-dot"></div><span>API key active</span></div>
+      <div class="badge">v0.2</div>
+      <button class="reset-key-btn" onclick="resetKey()">reset key</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="main-col">
+
+      <div class="tabs">
+        <button class="tab active" id="tab-paste" onclick="switchTab('paste')">Paste code</button>
+        <button class="tab" id="tab-upload" onclick="switchTab('upload')">Upload file</button>
+      </div>
+
+      <div class="code-wrap" id="paste-panel">
+        <div class="code-header">
+          <div class="dot" style="background:#ff5f56"></div>
+          <div class="dot" style="background:#ffbd2e"></div>
+          <div class="dot" style="background:#27c93f"></div>
+          <select class="lang-select" id="lang-select">
+            <option value="auto">auto-detect</option>
+            <option value="python">python</option>
+            <option value="javascript">javascript</option>
+            <option value="java">java</option>
+            <option value="c">c / c++</option>
+            <option value="sql">sql</option>
+            <option value="bash">bash / shell</option>
+            <option value="go">go</option>
+            <option value="php">php</option>
+            <option value="ruby">ruby</option>
+          </select>
+        </div>
+        <textarea id="code-input" placeholder="// Paste your code here and click Scan...&#10;// SecureScan checks for SQL injection, XSS, exposed secrets, insecure configs, and more."></textarea>
+      </div>
+
+      <div class="upload-zone" id="upload-panel"
+        ondragover="event.preventDefault();this.classList.add('drag')"
+        ondragleave="this.classList.remove('drag')"
+        ondrop="handleDrop(event)">
+        <div class="upload-icon">📁</div>
+        <div class="upload-label">Drop a file here or <span onclick="document.getElementById('file-input').click()">browse</span></div>
+        <div class="file-types">.py · .js · .ts · .java · .c · .cpp · .go · .php · .rb · .sh · .sql</div>
+        <div class="file-loaded" id="file-loaded"></div>
+        <input type="file" id="file-input" accept=".py,.js,.ts,.java,.c,.cpp,.go,.php,.rb,.sh,.sql,.txt" onchange="handleFile(this)" />
+      </div>
+
+      <div class="scan-row">
+        <button class="scan-btn" id="scan-btn" onclick="runScan()">
+          <span class="spinner" id="spinner"></span>
+          <span id="scan-label">Scan code</span>
+        </button>
+        <div class="scan-hint">Powered by Groq · llama-3.3-70b-versatile</div>
+      </div>
+
+      <div class="results" id="results"></div>
+    </div>
+
+    <div class="side-col">
+      <div class="history-panel">
+        <div class="history-title">
+          <span>Scan history</span>
+          <button class="history-clear" onclick="clearHistory()">clear all</button>
+        </div>
+        <div id="history-list"><div class="history-empty">No scans yet</div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'securescan_api_key';
+    const HISTORY_KEY = 'securescan_history';
+
+    // Guard: if no key saved, send back to setup
+    const API_KEY = localStorage.getItem(STORAGE_KEY);
+    if (!API_KEY) window.location.replace('index.html');
+
+    let currentTab = 'paste';
+    let uploadedCode = '';
+    let currentResult = null;
+
+    function resetKey() {
+      if (!confirm('Remove your saved API key and return to setup?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      window.location.replace('index.html');
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tab-paste').classList.toggle('active', tab === 'paste');
+      document.getElementById('tab-upload').classList.toggle('active', tab === 'upload');
+      document.getElementById('paste-panel').style.display = tab === 'paste' ? 'block' : 'none';
+      const up = document.getElementById('upload-panel');
+      up.style.display = tab === 'upload' ? 'block' : 'none';
+      up.classList.toggle('active', tab === 'upload');
+    }
+    switchTab('paste');
+
+    function handleFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => { uploadedCode = e.target.result; document.getElementById('file-loaded').textContent = '✓ ' + file.name + ' loaded'; };
+      reader.readAsText(file);
+    }
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('upload-panel').classList.remove('drag');
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => { uploadedCode = ev.target.result; document.getElementById('file-loaded').textContent = '✓ ' + file.name + ' loaded'; };
+      reader.readAsText(file);
+    }
+    function getCode() { return currentTab === 'paste' ? document.getElementById('code-input').value.trim() : uploadedCode.trim(); }
+    function getLang() { const v = document.getElementById('lang-select').value; return v === 'auto' ? '' : v; }
+
+    function calcGrade(vulns) {
+      if (!vulns || vulns.length === 0) return 'A';
+      const c = vulns.filter(v => v.severity === 'CRITICAL').length;
+      const h = vulns.filter(v => v.severity === 'HIGH').length;
+      const m = vulns.filter(v => v.severity === 'MEDIUM').length;
+      if (c > 0) return 'F';
+      if (h >= 3) return 'F';
+      if (h >= 1) return 'D';
+      if (m >= 3) return 'C';
+      if (m >= 1) return 'B';
+      return 'B';
+    }
+
+    async function runScan() {
+      const code = getCode();
+      if (!code) { showError('No code to scan. Paste some code or upload a file first.'); return; }
+      if (code.length > 30000) { showError('Code too large (max ~30,000 chars). Try a smaller snippet.'); return; }
+
+      const btn = document.getElementById('scan-btn');
+      const spinner = document.getElementById('spinner');
+      const label = document.getElementById('scan-label');
+      btn.disabled = true; spinner.style.display = 'block'; label.textContent = 'Scanning...';
+      document.getElementById('results').style.display = 'none';
+
+      const langHint = getLang() ? `The language is ${getLang()}.` : 'Auto-detect the language.';
+      const systemPrompt = `You are a professional security code reviewer. Analyze code for security vulnerabilities.
+Always respond with ONLY a valid JSON object — no markdown, no explanation, no code fences.
+Use this exact structure:
+{
+  "language": "detected language",
+  "summary": "one sentence overall assessment",
+  "vulnerabilities": [
+    {
+      "id": "VULN-001",
+      "name": "short vulnerability name",
+      "severity": "CRITICAL|HIGH|MEDIUM|LOW",
+      "type": "e.g. SQL Injection, XSS, Hardcoded Secret",
+      "description": "clear explanation of the vulnerability and why it is dangerous",
+      "location": "line number or function name, or General",
+      "fix": "concrete code fix or remediation advice"
+    }
+  ]
+}
+Severity: CRITICAL=immediate exploitation, HIGH=serious risk, MEDIUM=moderate risk, LOW=best practice issue.
+Return an empty array for vulnerabilities if the code is clean.
+
+Important context: This tool runs entirely in a single user's local browser — it is not a hosted multi-user web app. Because of this:
+- Do NOT flag localStorage usage as a vulnerability. For a local single-user tool, localStorage is an appropriate and accepted storage mechanism.
+- Do NOT flag hardcoded localhost URLs or local API endpoints as vulnerabilities.
+- Do NOT flag the absence of a backend or server-side validation as a vulnerability.
+- Focus only on vulnerabilities that would be genuinely exploitable in the context of the code being reviewed.`;
+
+      try {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            temperature: 0.1,
+            max_tokens: 1500,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: `${langHint}\n\nCode to review:\n${code}` }
+            ]
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          if (res.status === 401) {
+            if (confirm('Your API key was rejected. Reset it and return to setup?')) resetKey();
+            return;
+          }
+          throw new Error(`Groq API error ${res.status}: ${err?.error?.message || res.statusText}`);
+        }
+        const data = await res.json();
+        const rawText = data.choices[0].message.content || '';
+        const clean = rawText.replace(/```json|```/g, '').trim();
+        const result = JSON.parse(clean);
+        result.grade = calcGrade(result.vulnerabilities);
+        result.scannedAt = new Date().toISOString();
+        currentResult = result;
+        saveToHistory(result);
+        renderResults(result);
+      } catch (err) {
+        showError(`Scan failed: ${err.message}`);
+      } finally {
+        btn.disabled = false; spinner.style.display = 'none'; label.textContent = 'Scan code';
+      }
+    }
+
+    function renderResults(result) {
+      const el = document.getElementById('results');
+      el.style.display = 'block';
+      const grade = result.grade || 'A';
+
+      if (!result.vulnerabilities || result.vulnerabilities.length === 0) {
+        el.innerHTML = `
+          <div class="results-header">
+            <div class="grade-badge grade-${grade}">${grade}</div>
+            <div class="results-title">Scan complete — ${result.language || 'code'}</div>
+            <button class="export-btn" onclick="exportReport()">↓ export PDF</button>
+          </div>
+          <div class="clean-banner">
+            <span style="font-size:22px">✓</span>
+            <div><div style="font-weight:600;margin-bottom:3px">No vulnerabilities detected</div>
+            <div style="font-size:12px;color:#00aa55;opacity:0.85">${result.summary || 'Code looks clean.'}</div></div>
+          </div>`;
+        return;
+      }
+
+      const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 };
+      result.vulnerabilities.forEach(v => { if (counts[v.severity] !== undefined) counts[v.severity]++; });
+      const chips = Object.entries(counts).filter(([,n]) => n > 0)
+        .map(([sev, n]) => `<div class="chip chip-${sev.toLowerCase()}">${n} ${sev}</div>`).join('');
+
+      const cards = result.vulnerabilities.map((v, i) => `
+        <div class="vuln-card" id="vc-${i}">
+          <div class="vuln-card-header" onclick="toggleCard(${i})">
+            <div class="sev-badge sev-${v.severity}">${v.severity}</div>
+            <div class="vuln-name">${v.name}</div>
+            <div class="vuln-type">${v.type}</div>
+            <div class="chevron">▶</div>
+          </div>
+          <div class="vuln-body">
+            <div class="vuln-section"><div class="vuln-section-label">Location</div><div class="vuln-line">${v.location}</div></div>
+            <div class="vuln-section"><div class="vuln-section-label">Description</div><div class="vuln-desc">${v.description}</div></div>
+            <div class="vuln-section"><div class="vuln-section-label">How to fix</div><div class="vuln-fix">${escHtml(v.fix)}</div></div>
+          </div>
+        </div>`).join('');
+
+      el.innerHTML = `
+        <div class="results-header">
+          <div class="grade-badge grade-${grade}">${grade}</div>
+          <div>
+            <div class="results-title">Scan results — ${result.language || 'code'}</div>
+            <div class="score-chips" style="margin-top:5px">${chips}</div>
+          </div>
+          <button class="export-btn" onclick="exportReport()">↓ export PDF</button>
+        </div>
+        <div class="summary-bar">
+          <strong>${result.vulnerabilities.length} issue${result.vulnerabilities.length !== 1 ? 's' : ''} found</strong>
+          <span>·</span><span>${result.summary}</span>
+        </div>
+        <div class="vuln-list">${cards}</div>`;
+
+      toggleCard(0);
+    }
+
+    function toggleCard(i) { const c = document.getElementById('vc-' + i); if (c) c.classList.toggle('open'); }
+
+    // ── Export PDF (generates a self-contained printable HTML file) ──
+    function exportReport() {
+      if (!currentResult) return;
+      const r = currentResult;
+      const date = new Date(r.scannedAt).toLocaleString();
+      const gradeColors = { A: '#006600', B: '#006600', C: '#666600', D: '#cc6600', F: '#cc0000' };
+      const gradeColor = gradeColors[r.grade] || '#000';
+      const sevColors = { CRITICAL: '#cc0000', HIGH: '#cc6600', MEDIUM: '#666600', LOW: '#006600' };
+      const sevBg = { CRITICAL: '#ffe6e6', HIGH: '#fff0e6', MEDIUM: '#ffffe6', LOW: '#e6ffe6' };
+
+      const vulnRows = (r.vulnerabilities || []).map(v => `
+        <div style="border:1px solid #ddd;border-radius:6px;margin-bottom:12px;overflow:hidden;page-break-inside:avoid">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f5f5f5;border-bottom:1px solid #ddd">
+            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:${sevBg[v.severity]};color:${sevColors[v.severity]};border:1px solid ${sevColors[v.severity]}40;font-family:monospace;letter-spacing:0.05em">${v.severity}</span>
+            <strong style="font-size:13px;color:#111">${v.name}</strong>
+            <span style="margin-left:auto;font-size:11px;color:#888;font-family:monospace">${v.type}</span>
+          </div>
+          <div style="padding:12px 14px">
+            <div style="margin-bottom:10px">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#888;font-family:monospace;margin-bottom:4px">Location</div>
+              <code style="font-size:11px;background:#f0f0f0;padding:3px 8px;border-radius:3px;color:#333">${v.location}</code>
+            </div>
+            <div style="margin-bottom:10px">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#888;font-family:monospace;margin-bottom:4px">Description</div>
+              <p style="font-size:12px;color:#444;line-height:1.6;margin:0">${v.description}</p>
+            </div>
+            <div>
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#888;font-family:monospace;margin-bottom:4px">How to fix</div>
+              <pre style="font-size:11px;background:#f0fff4;color:#006600;border:1px solid #c3e6cb;border-radius:4px;padding:10px;margin:0;white-space:pre-wrap;word-break:break-word;font-family:monospace">${escHtml(v.fix)}</pre>
+            </div>
+          </div>
+        </div>`).join('');
+
+      const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 };
+      (r.vulnerabilities || []).forEach(v => { if (counts[v.severity] !== undefined) counts[v.severity]++; });
+      const countBadges = Object.entries(counts).filter(([,n]) => n > 0)
+        .map(([sev, n]) => `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:${sevBg[sev]};color:${sevColors[sev]};border:1px solid ${sevColors[sev]}40;font-family:monospace;margin-right:6px">${n} ${sev}</span>`).join('');
+
+      const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>SecureScan Report — ${r.language || 'code'} — ${date}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fff; color: #111; max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+    @media print { body { padding: 0; } }
+  </style>
+</head>
+<body>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #111">
+    <div>
+      <div style="font-size:22px;font-weight:700;letter-spacing:0.02em">🛡️ SecureScan</div>
+      <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-top:2px">AI Code Security Report</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:#888;font-family:monospace">${date}</div>
+      <div style="font-size:11px;color:#888;font-family:monospace">${r.language || 'unknown language'}</div>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:16px;background:#f9f9f9;border:1px solid #eee;border-radius:8px">
+    <div style="width:52px;height:52px;border-radius:8px;border:2px solid ${gradeColor};background:${gradeColor}18;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:${gradeColor};font-family:monospace;flex-shrink:0">${r.grade}</div>
+    <div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px">${r.vulnerabilities?.length || 0} issue${(r.vulnerabilities?.length || 0) !== 1 ? 's' : ''} found</div>
+      <div style="margin-bottom:6px">${countBadges}</div>
+      <div style="font-size:12px;color:#555">${r.summary || ''}</div>
+    </div>
+  </div>
+
+  ${vulnRows || '<div style="padding:20px;text-align:center;background:#f0fff4;border:1px solid #c3e6cb;border-radius:8px;color:#006600;font-weight:600">✓ No vulnerabilities detected</div>'}
+
+  <div style="margin-top:32px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#aaa;text-align:center;font-family:monospace">
+    Generated by SecureScan · Powered by Groq · ${date}
+  </div>
+
+  <script>window.onload = () => window.print();<\/script>
+</body>
+</html>`;
+
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const win = window.open(url, '_blank');
+      if (!win) {
+        // Fallback: download the HTML file directly
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `securescan-report-${Date.now()}.html`;
+        a.click();
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }
+    function showError(msg) {
+      const el = document.getElementById('results');
+      el.style.display = 'block';
+      el.innerHTML = `<div class="error-banner">⚠ ${msg}</div>`;
+    }
+    function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // ── History ──
+    function loadHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; } }
+    function saveToHistory(result) {
+      const history = loadHistory();
+      history.unshift({
+        language: result.language || 'unknown', grade: result.grade,
+        summary: result.summary, vulnCount: result.vulnerabilities?.length || 0,
+        counts: {
+          CRITICAL: result.vulnerabilities?.filter(v => v.severity === 'CRITICAL').length || 0,
+          HIGH: result.vulnerabilities?.filter(v => v.severity === 'HIGH').length || 0,
+          MEDIUM: result.vulnerabilities?.filter(v => v.severity === 'MEDIUM').length || 0,
+          LOW: result.vulnerabilities?.filter(v => v.severity === 'LOW').length || 0,
+        },
+        scannedAt: result.scannedAt, result
+      });
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 20)));
+      renderHistory();
+    }
+    function clearHistory() { if (!confirm('Clear all scan history?')) return; localStorage.removeItem(HISTORY_KEY); renderHistory(); }
+    function renderHistory() {
+      const history = loadHistory();
+      const el = document.getElementById('history-list');
+      if (!history.length) { el.innerHTML = '<div class="history-empty">No scans yet</div>'; return; }
+      const gradeColors = { A: '#00ff88', B: '#44dd88', C: '#ffee00', D: '#ff9900', F: '#ff4444' };
+      el.innerHTML = `<div class="history-list">${history.map((item, i) => {
+        const color = gradeColors[item.grade] || '#00ff88';
+        const time = new Date(item.scannedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const date = new Date(item.scannedAt).toLocaleDateString([], { month: 'short', day: 'numeric' });
+        const chips = Object.entries(item.counts || {}).filter(([,n]) => n > 0)
+          .map(([sev, n]) => `<span class="history-chip chip-${sev.toLowerCase()}">${n} ${sev[0]}</span>`).join('');
+        return `<div class="history-item" onclick="restoreResult(${i})">
+          <div class="history-item-top">
+            <span class="history-grade" style="color:${color}">${item.grade}</span>
+            <span class="history-lang">${item.language}</span>
+            <span class="history-time">${date} ${time}</span>
+          </div>
+          <div class="history-summary">${item.summary || ''}</div>
+          ${chips ? `<div class="history-chips">${chips}</div>` : ''}
+        </div>`;
+      }).join('')}</div>`;
+    }
+    function restoreResult(i) { const h = loadHistory(); if (h[i]?.result) { currentResult = h[i].result; renderResults(h[i].result); window.scrollTo({ top: 0, behavior: 'smooth' }); } }
+
+    renderHistory();
+  </script>
+</body>
+</html>
