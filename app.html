@@ -9,6 +9,71 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'IBM Plex Sans', sans-serif; background: #0a0e14; color: #e0e6f0; min-height: 100vh; }
+    /* ── Scan overlay ── */
+    .scan-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .scan-overlay.active { opacity: 1; pointer-events: all; }
+    .scan-overlay-bg { position: absolute; inset: 0; background: #0a0e14cc; }
+    .scan-line {
+      position: absolute; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent 0%, #00d4ff80 20%, #00d4ff 50%, #00d4ff80 80%, transparent 100%);
+      box-shadow: 0 0 18px 6px #00d4ff60, 0 0 60px 20px #00d4ff20;
+      top: -2px;
+      animation: scanLine 1.6s ease-in-out infinite;
+    }
+    @keyframes scanLine {
+      0%   { top: -2px; opacity: 0; }
+      5%   { opacity: 1; }
+      95%  { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+    .scan-line-reflection {
+      position: absolute; left: 0; right: 0; height: 120px; top: -122px;
+      background: linear-gradient(180deg, transparent 0%, #00d4ff08 100%);
+      animation: scanReflection 1.6s ease-in-out infinite;
+    }
+    @keyframes scanReflection {
+      0%   { top: -122px; opacity: 0; }
+      5%   { opacity: 1; }
+      95%  { opacity: 1; }
+      100% { top: calc(100% - 120px); opacity: 0; }
+    }
+    .scan-overlay-label {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+    }
+    .scan-overlay-icon {
+      width: 56px; height: 56px;
+      border: 2px solid #00d4ff40; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { border-color: #00d4ff40; box-shadow: 0 0 0 0 #00d4ff20; }
+      50% { border-color: #00d4ffaa; box-shadow: 0 0 0 10px #00d4ff00; }
+    }
+    .scan-overlay-icon svg { width: 26px; height: 26px; }
+    .scan-overlay-text {
+      font-family: "IBM Plex Mono", monospace; font-size: 13px; font-weight: 500;
+      color: #00d4ff; letter-spacing: 0.15em; text-transform: uppercase;
+      animation: blink 1.2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .scan-overlay-sub {
+      font-family: "IBM Plex Mono", monospace; font-size: 10px; color: #4a6080;
+      letter-spacing: 0.1em; text-transform: uppercase; margin-top: -8px;
+    }
+    .scan-overlay::after {
+      content: ""; position: absolute; inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, #00d4ff04 2px, #00d4ff04 4px);
+      pointer-events: none;
+    }
+
 
     /* ── Header ── */
     .header {
@@ -167,6 +232,23 @@
 </head>
 <body>
 
+  <!-- Scan overlay -->
+  <div class="scan-overlay" id="scan-overlay">
+    <div class="scan-overlay-bg"></div>
+    <div class="scan-line-reflection"></div>
+    <div class="scan-line"></div>
+    <div class="scan-overlay-label">
+      <div class="scan-overlay-icon">
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 2L14 5V9C14 12 11.5 14.5 9 16C6.5 14.5 4 12 4 9V5L9 2Z" stroke="#00d4ff" stroke-width="1.5" fill="none"/>
+          <path d="M7 9L8.5 10.5L11 7.5" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="scan-overlay-text">Scanning...</div>
+      <div class="scan-overlay-sub">Analyzing for vulnerabilities</div>
+    </div>
+  </div>
+
   <header class="header">
     <div class="logo-mark">
       <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -316,7 +398,9 @@
       const btn = document.getElementById('scan-btn');
       const spinner = document.getElementById('spinner');
       const label = document.getElementById('scan-label');
+      const overlay = document.getElementById('scan-overlay');
       btn.disabled = true; spinner.style.display = 'block'; label.textContent = 'Scanning...';
+      overlay.classList.add('active');
       document.getElementById('results').style.display = 'none';
 
       const langHint = getLang() ? `The language is ${getLang()}.` : 'Auto-detect the language.';
@@ -382,6 +466,7 @@ Important context: This tool runs entirely in a single user's local browser — 
         showError(`Scan failed: ${err.message}`);
       } finally {
         btn.disabled = false; spinner.style.display = 'none'; label.textContent = 'Scan code';
+        overlay.classList.remove('active');
       }
     }
 
