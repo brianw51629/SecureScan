@@ -4,7 +4,7 @@ An AI-powered code security reviewer that scans your code for vulnerabilities, r
 
 ![SecureScan](https://img.shields.io/badge/version-0.2-00d4ff?style=flat-square) ![License](https://img.shields.io/badge/license-MIT-00ff88?style=flat-square) ![Powered by](https://img.shields.io/badge/powered%20by-Groq%20%2B%20Llama%203.3-ff9900?style=flat-square) ![Live](https://img.shields.io/badge/live-GitHub%20Pages-00ff88?style=flat-square)
 
-## 🔗 [Try it live → brianw51629.github.io/securescan](https://brianw51629.github.io/securescan)
+## 🔗 [Try it live → brianw51629.github.io/securescan](https://brianw51629.github.io/SecureScan)
 
 ---
 
