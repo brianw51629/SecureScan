@@ -9,97 +9,35 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'IBM Plex Sans', sans-serif; background: #0a0e14; color: #e0e6f0; min-height: 100vh; }
+
     /* ── Scan overlay ── */
-    .scan-overlay {
-      position: fixed; inset: 0; z-index: 9999;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
+    .scan-overlay { position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
     .scan-overlay.active { opacity: 1; pointer-events: all; }
     .scan-overlay-bg { position: absolute; inset: 0; background: #0a0e14cc; }
-    .scan-line {
-      position: absolute; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, transparent 0%, #00d4ff80 20%, #00d4ff 50%, #00d4ff80 80%, transparent 100%);
-      box-shadow: 0 0 18px 6px #00d4ff60, 0 0 60px 20px #00d4ff20;
-      top: -2px;
-      animation: scanLine 1.6s ease-in-out infinite;
-    }
-    @keyframes scanLine {
-      0%   { top: -2px; opacity: 0; }
-      5%   { opacity: 1; }
-      95%  { opacity: 1; }
-      100% { top: 100%; opacity: 0; }
-    }
-    .scan-line-reflection {
-      position: absolute; left: 0; right: 0; height: 120px; top: -122px;
-      background: linear-gradient(180deg, transparent 0%, #00d4ff08 100%);
-      animation: scanReflection 1.6s ease-in-out infinite;
-    }
-    @keyframes scanReflection {
-      0%   { top: -122px; opacity: 0; }
-      5%   { opacity: 1; }
-      95%  { opacity: 1; }
-      100% { top: calc(100% - 120px); opacity: 0; }
-    }
-    .scan-overlay-label {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex; flex-direction: column; align-items: center; gap: 16px;
-    }
-    .scan-overlay-icon {
-      width: 56px; height: 56px;
-      border: 2px solid #00d4ff40; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      animation: pulse 1.6s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { border-color: #00d4ff40; box-shadow: 0 0 0 0 #00d4ff20; }
-      50% { border-color: #00d4ffaa; box-shadow: 0 0 0 10px #00d4ff00; }
-    }
+    .scan-line { position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent 0%, #00d4ff80 20%, #00d4ff 50%, #00d4ff80 80%, transparent 100%); box-shadow: 0 0 18px 6px #00d4ff60, 0 0 60px 20px #00d4ff20; top: -2px; animation: scanLine 1.6s ease-in-out infinite; }
+    @keyframes scanLine { 0% { top: -2px; opacity: 0; } 5% { opacity: 1; } 95% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+    .scan-line-reflection { position: absolute; left: 0; right: 0; height: 120px; top: -122px; background: linear-gradient(180deg, transparent 0%, #00d4ff08 100%); animation: scanReflection 1.6s ease-in-out infinite; }
+    @keyframes scanReflection { 0% { top: -122px; opacity: 0; } 5% { opacity: 1; } 95% { opacity: 1; } 100% { top: calc(100% - 120px); opacity: 0; } }
+    .scan-overlay-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .scan-overlay-icon { width: 56px; height: 56px; border: 2px solid #00d4ff40; border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { border-color: #00d4ff40; box-shadow: 0 0 0 0 #00d4ff20; } 50% { border-color: #00d4ffaa; box-shadow: 0 0 0 10px #00d4ff00; } }
     .scan-overlay-icon svg { width: 26px; height: 26px; }
-    .scan-overlay-text {
-      font-family: "IBM Plex Mono", monospace; font-size: 13px; font-weight: 500;
-      color: #00d4ff; letter-spacing: 0.15em; text-transform: uppercase;
-      animation: blink 1.2s ease-in-out infinite;
-    }
+    .scan-overlay-text { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; color: #00d4ff; letter-spacing: 0.15em; text-transform: uppercase; animation: blink 1.2s ease-in-out infinite; }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-    .scan-overlay-sub {
-      font-family: "IBM Plex Mono", monospace; font-size: 10px; color: #4a6080;
-      letter-spacing: 0.1em; text-transform: uppercase; margin-top: -8px;
-    }
-    .scan-overlay::after {
-      content: ""; position: absolute; inset: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, #00d4ff04 2px, #00d4ff04 4px);
-      pointer-events: none;
-    }
-
+    .scan-overlay-sub { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #4a6080; letter-spacing: 0.1em; text-transform: uppercase; margin-top: -8px; }
+    .scan-overlay::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, #00d4ff04 2px, #00d4ff04 4px); pointer-events: none; }
 
     /* ── Header ── */
-    .header {
-      display: flex; align-items: center; gap: 12px;
-      padding: 16px 32px;
-      border-bottom: 1px solid #1e2733;
-      position: sticky; top: 0; background: #0a0e14; z-index: 10;
-    }
+    .header { display: flex; align-items: center; gap: 12px; padding: 16px 32px; border-bottom: 1px solid #1e2733; position: sticky; top: 0; background: #0a0e14; z-index: 10; }
     .logo-mark { width: 32px; height: 32px; background: #00d4ff; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .logo-mark svg { width: 18px; height: 18px; }
     .header-title { font-size: 15px; font-weight: 600; color: #fff; letter-spacing: 0.02em; }
     .header-sub { font-size: 10px; color: #4a6080; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px; }
     .badge { font-size: 10px; font-family: 'IBM Plex Mono', monospace; padding: 3px 9px; background: #0d2a1a; color: #00ff88; border: 1px solid #00ff8840; border-radius: 4px; letter-spacing: 0.05em; }
     .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-    .key-indicator {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 11px; font-family: 'IBM Plex Mono', monospace;
-      color: #4a6080;
-    }
+    .key-indicator { display: flex; align-items: center; gap: 6px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; color: #4a6080; }
     .key-dot { width: 6px; height: 6px; border-radius: 50%; background: #00ff88; }
-    .reset-key-btn {
-      font-family: 'IBM Plex Mono', monospace; font-size: 11px;
-      color: #2a3a50; background: transparent;
-      border: 1px solid #1e2733; border-radius: 5px;
-      padding: 5px 10px; cursor: pointer; transition: all 0.15s;
-    }
+    .reset-key-btn { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #2a3a50; background: transparent; border: 1px solid #1e2733; border-radius: 5px; padding: 5px 10px; cursor: pointer; transition: all 0.15s; }
     .reset-key-btn:hover { color: #ff4444; border-color: #ff444440; }
 
     /* ── Layout ── */
@@ -149,6 +87,32 @@
     .results-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #1e2733; }
     .results-title { font-size: 15px; font-weight: 600; color: #fff; }
     .grade-badge { width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; flex-shrink: 0; }
+    .grade-A { background: #0d2a1a; color: #00ff88; border: 1px solid #00ff8840; }
+    .grade-B { background: #0a1a10; color: #44dd88; border: 1px solid #44dd8840; }
+    .grade-C { background: #1a1a00; color: #ffee00; border: 1px solid #ffee0040; }
+    .grade-D { background: #2a1a00; color: #ff9900; border: 1px solid #ff990040; }
+    .grade-F { background: #2a0a0a; color: #ff4444; border: 1px solid #ff444440; }
+    .score-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 4px; letter-spacing: 0.04em; }
+    .chip-critical { background: #2a0a0a; color: #ff4444; border: 1px solid #ff444430; }
+    .chip-high { background: #2a1a00; color: #ff9900; border: 1px solid #ff990030; }
+    .chip-medium { background: #1a1a00; color: #ffee00; border: 1px solid #ffee0030; }
+    .chip-low { background: #0a1a10; color: #00ff88; border: 1px solid #00ff8830; }
+    .export-btn { margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #4a6080; background: transparent; border: 1px solid #1e2733; border-radius: 5px; padding: 6px 12px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .export-btn:hover { color: #00d4ff; border-color: #00d4ff40; }
+    .summary-bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #0d1520; border: 1px solid #1e2733; border-radius: 8px; margin-bottom: 14px; font-size: 13px; color: #4a6080; }
+    .summary-bar strong { color: #c9d8ec; font-weight: 500; }
+    .vuln-list { display: flex; flex-direction: column; gap: 10px; }
+    .vuln-card { border: 1px solid #1e2733; border-radius: 9px; overflow: hidden; background: #060a0f; animation: fadeIn 0.3s ease both; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .vuln-card-header { display: flex; align-items: center; gap: 10px; padding: 13px 16px; cursor: pointer; user-select: none; transition: background 0.12s; }
+    .vuln-card-header:hover { background: #0d1520; }
+    .sev-badge { font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+    .sev-CRITICAL { background: #2a0a0a; color: #ff4444; border: 1px solid #ff444430; }
+    .sev-HIGH { background: #2a1a00; color: #ff9900; border: 1px solid #ff990030; }
+    .sev-MEDIUM { background: #1a1a00; color: #ffee00; border: 1px solid #ffee0030; }
+    .sev-LOW { background: #0a1a10; color: #00ff88; border: 1px solid #00ff8830; }
+    .vuln-name { font-size: 13px; font-weight: 500; color: #c9d8ec; flex: 1; }
     .vuln-type { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #2a3a50; }
     .chevron { font-size: 11px; color: #2a3a50; transition: transform 0.2s; }
     .vuln-card.open .chevron { transform: rotate(90deg); }
@@ -179,6 +143,8 @@
     .history-chips { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
     .history-chip { font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 1px 6px; border-radius: 3px; }
 
+    /* ── Print ── */
+    @media print {
       body { background: #fff; color: #000; }
       .header, .tabs, .code-wrap, .upload-zone, .scan-row, .side-col, .export-btn { display: none !important; }
       .layout { display: block; padding: 0; }
@@ -238,10 +204,6 @@
       <button class="reset-key-btn" onclick="resetKey()">reset key</button>
     </div>
   </header>
-        Send
-      </button>
-    </div>
-  </div>
 
   <div class="layout">
     <div class="main-col">
@@ -283,9 +245,7 @@
         <input type="file" id="file-input" accept=".py,.js,.ts,.java,.c,.cpp,.go,.php,.rb,.sh,.sql,.txt" onchange="handleFile(this)" />
       </div>
 
-      </div>
-
-      <div class="scan-row" id="scan-row">
+      <div class="scan-row">
         <button class="scan-btn" id="scan-btn" onclick="runScan()">
           <span class="spinner" id="spinner"></span>
           <span id="scan-label">Scan code</span>
@@ -317,16 +277,8 @@
     if (!API_KEY) window.location.replace('index.html');
 
     const PROVIDER_CONFIG = {
-      groq: {
-        url: 'https://api.groq.com/openai/v1/chat/completions',
-        model: 'llama-3.3-70b-versatile',
-        label: 'Groq'
-      },
-      cerebras: {
-        url: 'https://api.cerebras.ai/v1/chat/completions',
-        model: 'gpt-oss-120b',
-        label: 'Cerebras'
-      }
+      groq: { url: 'https://api.groq.com/openai/v1/chat/completions', model: 'llama-3.3-70b-versatile', label: 'Groq' },
+      cerebras: { url: 'https://api.cerebras.ai/v1/chat/completions', model: 'gpt-oss-120b', label: 'Cerebras' }
     };
     const providerCfg = PROVIDER_CONFIG[PROVIDER] || PROVIDER_CONFIG.groq;
 
@@ -337,13 +289,16 @@
       if (lbl) lbl.textContent = `${providerCfg.label} active`;
     });
 
-    // ── Mode switching ──
     function resetKey() {
       if (!confirm('Remove your saved API key and return to setup?')) return;
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(PROVIDER_KEY);
       window.location.replace('index.html');
     }
+
+    let currentTab = 'paste';
+    let uploadedCode = '';
+    let currentResult = null;
 
     function switchTab(tab) {
       currentTab = tab;
@@ -423,13 +378,7 @@ Use this exact structure:
 }
 Severity: CRITICAL=immediate exploitation, HIGH=serious risk, MEDIUM=moderate risk, LOW=best practice issue.
 Return an empty array for vulnerabilities if the code is clean.
-
-Important context: This tool runs entirely in a single user's local browser — it is not a hosted multi-user web app. Because of this:
-- Do NOT flag localStorage usage as a vulnerability.
-- Do NOT flag hardcoded localhost URLs or local API endpoints as vulnerabilities.
-- Do NOT flag the absence of a backend or server-side validation as a vulnerability.
-- Focus only on vulnerabilities that would be genuinely exploitable in the context of the code being reviewed.`;
-
+Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backend as vulnerabilities.`;
 
       try {
         const res = await fetch(providerCfg.url, {
@@ -447,12 +396,8 @@ Important context: This tool runs entirely in a single user's local browser — 
         });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
-          if (res.status === 401) {
-            if (confirm('Your API key was rejected. Reset it and return to setup?')) resetKey();
-            return;
-          }
-          throw new Error(`${PROVIDER} API error ${res.status}: ${err?.error?.message || err?.message || res.statusText}`);
-          throw new Error(`Groq API error ${res.status}: ${err?.error?.message || res.statusText}`);
+          if (res.status === 401) { if (confirm('Your API key was rejected. Reset it?')) resetKey(); return; }
+          throw new Error(`${providerCfg.label} API error ${res.status}: ${err?.error?.message || res.statusText}`);
         }
         const data = await res.json();
         const rawText = data.choices[0].message.content || '';
@@ -467,7 +412,7 @@ Important context: This tool runs entirely in a single user's local browser — 
         showError(`Scan failed: ${err.message}`);
       } finally {
         btn.disabled = false; spinner.style.display = 'none'; label.textContent = 'Scan code';
-        overlay.classList.remove('active');
+        document.getElementById('scan-overlay').classList.remove('active');
       }
     }
 
@@ -481,7 +426,7 @@ Important context: This tool runs entirely in a single user's local browser — 
           <div class="results-header">
             <div class="grade-badge grade-${grade}">${grade}</div>
             <div class="results-title">Scan complete — ${result.language || 'code'}</div>
-            <button class="export-btn" onclick="exportReport()">↓ export PDF</button>
+            <button class="export-btn" onclick="window.print()">↓ export PDF</button>
           </div>
           <div class="clean-banner">
             <span style="font-size:22px">✓</span>
@@ -518,7 +463,7 @@ Important context: This tool runs entirely in a single user's local browser — 
             <div class="results-title">Scan results — ${result.language || 'code'}</div>
             <div class="score-chips" style="margin-top:5px">${chips}</div>
           </div>
-          <button class="export-btn" onclick="exportReport()">↓ export PDF</button>
+          <button class="export-btn" onclick="window.print()">↓ export PDF</button>
         </div>
         <div class="summary-bar">
           <strong>${result.vulnerabilities.length} issue${result.vulnerabilities.length !== 1 ? 's' : ''} found</strong>
@@ -531,106 +476,16 @@ Important context: This tool runs entirely in a single user's local browser — 
 
     function toggleCard(i) { const c = document.getElementById('vc-' + i); if (c) c.classList.toggle('open'); }
 
-    // ── Export PDF (generates a self-contained printable HTML file) ──
-    function exportReport() {
-      if (!currentResult) return;
-      const r = currentResult;
-      const date = new Date(r.scannedAt).toLocaleString();
-      const gradeColors = { A: '#006600', B: '#006600', C: '#666600', D: '#cc6600', F: '#cc0000' };
-      const gradeColor = gradeColors[r.grade] || '#000';
-      const sevColors = { CRITICAL: '#cc0000', HIGH: '#cc6600', MEDIUM: '#666600', LOW: '#006600' };
-      const sevBg = { CRITICAL: '#ffe6e6', HIGH: '#fff0e6', MEDIUM: '#ffffe6', LOW: '#e6ffe6' };
-
-      const vulnRows = (r.vulnerabilities || []).map(v => `
-        <div style="border:1px solid #ddd;border-radius:6px;margin-bottom:12px;overflow:hidden;page-break-inside:avoid">
-          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f5f5f5;border-bottom:1px solid #ddd">
-            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:${sevBg[v.severity]};color:${sevColors[v.severity]};border:1px solid ${sevColors[v.severity]}40;font-family:monospace;letter-spacing:0.05em">${v.severity}</span>
-            <strong style="font-size:13px;color:#111">${v.name}</strong>
-            <span style="margin-left:auto;font-size:11px;color:#888;font-family:monospace">${v.type}</span>
-          </div>
-          <div style="padding:12px 14px">
-            <div style="margin-bottom:10px">
-              <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#888;font-family:monospace;margin-bottom:4px">Location</div>
-              <code style="font-size:11px;background:#f0f0f0;padding:3px 8px;border-radius:3px;color:#333">${v.location}</code>
-            </div>
-            <div style="margin-bottom:10px">
-              <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#888;font-family:monospace;margin-bottom:4px">Description</div>
-              <p style="font-size:12px;color:#444;line-height:1.6;margin:0">${v.description}</p>
-            </div>
-            <div>
-              <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#888;font-family:monospace;margin-bottom:4px">How to fix</div>
-              <pre style="font-size:11px;background:#f0fff4;color:#006600;border:1px solid #c3e6cb;border-radius:4px;padding:10px;margin:0;white-space:pre-wrap;word-break:break-word;font-family:monospace">${escHtml(v.fix)}</pre>
-            </div>
-          </div>
-        </div>`).join('');
-
-      const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 };
-      (r.vulnerabilities || []).forEach(v => { if (counts[v.severity] !== undefined) counts[v.severity]++; });
-      const countBadges = Object.entries(counts).filter(([,n]) => n > 0)
-        .map(([sev, n]) => `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:${sevBg[sev]};color:${sevColors[sev]};border:1px solid ${sevColors[sev]}40;font-family:monospace;margin-right:6px">${n} ${sev}</span>`).join('');
-
-      const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <title>SecureScan Report — ${r.language || 'code'} — ${date}</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fff; color: #111; max-width: 800px; margin: 0 auto; padding: 32px 24px; }
-    @media print { body { padding: 0; } }
-  </style>
-</head>
-<body>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #111">
-    <div>
-      <div style="font-size:22px;font-weight:700;letter-spacing:0.02em">🛡️ SecureScan</div>
-      <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-top:2px">AI Code Security Report</div>
-    </div>
-    <div style="text-align:right">
-      <div style="font-size:11px;color:#888;font-family:monospace">${date}</div>
-      <div style="font-size:11px;color:#888;font-family:monospace">${r.language || 'unknown language'}</div>
-    </div>
-  </div>
-
-  <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:16px;background:#f9f9f9;border:1px solid #eee;border-radius:8px">
-    <div style="width:52px;height:52px;border-radius:8px;border:2px solid ${gradeColor};background:${gradeColor}18;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:${gradeColor};font-family:monospace;flex-shrink:0">${r.grade}</div>
-    <div>
-      <div style="font-size:14px;font-weight:600;margin-bottom:4px">${r.vulnerabilities?.length || 0} issue${(r.vulnerabilities?.length || 0) !== 1 ? 's' : ''} found</div>
-      <div style="margin-bottom:6px">${countBadges}</div>
-      <div style="font-size:12px;color:#555">${r.summary || ''}</div>
-    </div>
-  </div>
-
-  ${vulnRows || '<div style="padding:20px;text-align:center;background:#f0fff4;border:1px solid #c3e6cb;border-radius:8px;color:#006600;font-weight:600">✓ No vulnerabilities detected</div>'}
-
-  <div style="margin-top:32px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#aaa;text-align:center;font-family:monospace">
-    Generated by SecureScan · Powered by Groq · ${date}
-  </div>
-
-  <script>window.onload = () => window.print();<\/script>
-</body>
-</html>`;
-
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const win = window.open(url, '_blank');
-      if (!win) {
-        // Fallback: download the HTML file directly
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `securescan-report-${Date.now()}.html`;
-        a.click();
-      }
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-    }
     function showError(msg) {
       const el = document.getElementById('results');
       el.style.display = 'block';
       el.innerHTML = `<div class="error-banner">⚠ ${msg}</div>`;
     }
+
     function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    // ── History ──
     function loadHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; } }
+
     function saveToHistory(result) {
       const history = loadHistory();
       history.unshift({
@@ -647,7 +502,9 @@ Important context: This tool runs entirely in a single user's local browser — 
       localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 20)));
       renderHistory();
     }
+
     function clearHistory() { if (!confirm('Clear all scan history?')) return; localStorage.removeItem(HISTORY_KEY); renderHistory(); }
+
     function renderHistory() {
       const history = loadHistory();
       const el = document.getElementById('history-list');
@@ -662,7 +519,7 @@ Important context: This tool runs entirely in a single user's local browser — 
         return `<div class="history-item" onclick="restoreResult(${i})">
           <div class="history-item-top">
             <span class="history-grade" style="color:${color}">${item.grade}</span>
-            <span class="history-lang">${item.isRepo ? '⎇ ' : ''}${item.language}</span>
+            <span class="history-lang">${item.language}</span>
             <span class="history-time">${date} ${time}</span>
           </div>
           <div class="history-summary">${item.summary || ''}</div>
@@ -670,436 +527,13 @@ Important context: This tool runs entirely in a single user's local browser — 
         </div>`;
       }).join('')}</div>`;
     }
+
     function restoreResult(i) {
       const h = loadHistory();
-      const item = h[i];
-      if (!item) return;
-      if (item.isRepo && item.repoResult) {
-        const { owner, repo, fileResults, allVulns } = item.repoResult;
-        renderRepoResults(owner, repo, fileResults, allVulns);
-      } else if (item.result) {
-        currentResult = item.result;
-        renderResults(item.result);
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (h[i]?.result) { currentResult = h[i].result; renderResults(h[i].result); window.scrollTo({ top: 0, behavior: 'smooth' }); }
     }
 
     renderHistory();
-
-    // ── GitHub Repo Scanner ──
-    const CODE_EXTENSIONS = new Set([
-      'py','js','ts','jsx','tsx','java','c','cpp','h','hpp','cs','go',
-      'php','rb','sh','bash','sql','swift','kt','rs','vue','env','yaml','yml','toml','tf'
-    ]);
-    const SKIP_PATHS = ['node_modules','dist','build','.git','__pycache__','.next','vendor','coverage'];
-
-    function parseGithubUrl(url) {
-      const match = url.trim().match(/github\.com\/([^/]+)\/([^/?\s]+)/);
-      if (!match) return null;
-      return { owner: match[1], repo: match[2].replace(/\.git$/, '') };
-    }
-
-    function formatBytes(bytes) {
-      if (bytes < 1024) return bytes + ' B';
-      return (bytes / 1024).toFixed(1) + ' KB';
-    }
-
-    function isCodeFile(path) {
-      const skip = SKIP_PATHS.some(s => path.split('/').includes(s));
-      if (skip) return false;
-      const ext = path.split('.').pop().toLowerCase();
-      return CODE_EXTENSIONS.has(ext);
-    }
-
-    let repoFiles = []; // { path, size, sha }
-    function clearRepoResults() {
-      currentRepoState = null;
-      document.getElementById('results').style.display = 'none';
-    }
-
-    async function fetchRepo() {
-      const url = document.getElementById('github-url').value.trim();
-      const parsed = parseGithubUrl(url);
-      if (!parsed) { showError('Invalid GitHub URL. Use format: https://github.com/owner/repo'); return; }
-
-      // Reset accumulated state when fetching a new repo
-      currentRepoState = null;
-      document.getElementById('results').style.display = 'none';
-
-      const fetchBtn = document.getElementById('fetch-btn');
-      const fetchSpinner = document.getElementById('fetch-spinner');
-      const fetchLabel = document.getElementById('fetch-label');
-      fetchBtn.disabled = true; fetchSpinner.style.display = 'block'; fetchLabel.textContent = 'Fetching...';
-      document.getElementById('file-picker-wrap').innerHTML = '';
-
-      try {
-        const ghHeaders = GITHUB_TOKEN ? { 'Authorization': `Bearer ${GITHUB_TOKEN}` } : {};
-
-        // Get default branch first
-        const repoRes = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`, { headers: ghHeaders });
-        if (!repoRes.ok) throw new Error(repoRes.status === 404 ? 'Repo not found. Is it public?' : repoRes.status === 403 ? 'GitHub rate limit hit. Add a GitHub token on the setup page to fix this.' : `GitHub API error ${repoRes.status}`);
-        const repoData = await repoRes.json();
-        const branch = repoData.default_branch || 'main';
-
-        // Get file tree
-        const treeRes = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}/git/trees/${branch}?recursive=1`, { headers: ghHeaders });
-        if (!treeRes.ok) throw new Error(`Could not fetch file tree (${treeRes.status})`);
-        const treeData = await treeRes.json();
-
-        repoFiles = (treeData.tree || [])
-          .filter(f => f.type === 'blob' && isCodeFile(f.path))
-          .sort((a, b) => a.path.localeCompare(b.path));
-
-        if (!repoFiles.length) throw new Error('No scannable code files found in this repo.');
-        renderFilePicker(parsed, branch, repoFiles);
-
-      } catch (err) {
-        showError(`Fetch failed: ${err.message}`);
-      } finally {
-        fetchBtn.disabled = false; fetchSpinner.style.display = 'none'; fetchLabel.textContent = 'Fetch files';
-      }
-    }
-
-    function renderFilePicker(parsed, branch, files) {
-      const wrap = document.getElementById('file-picker-wrap');
-      const rows = files.map((f, i) => {
-        const parts = f.path.split('/');
-        const name = parts.pop();
-        const dir = parts.length ? `<span>${parts.join('/')}/</span>` : '';
-        return `
-          <div class="file-item checked" id="fi-${i}" onclick="toggleFile(${i})">
-            <input type="checkbox" id="fc-${i}" checked onclick="event.stopPropagation();toggleFile(${i})" />
-            <div class="file-item-name">${dir}${name}</div>
-            ${f.size ? `<div class="file-item-size">${formatBytes(f.size)}</div>` : ''}
-          </div>`;
-      }).join('');
-
-      wrap.innerHTML = `
-        <div class="file-picker">
-          <div class="file-picker-header">
-            <div class="file-picker-title">${parsed.owner}/${parsed.repo}</div>
-            <div class="file-picker-meta">${branch} · ${files.length} code files</div>
-            <div class="file-picker-actions">
-              <button class="picker-action-btn" onclick="selectAllFiles(true)">all</button>
-              <button class="picker-action-btn" onclick="selectAllFiles(false)">none</button>
-            </div>
-          </div>
-          <div class="file-list">${rows}</div>
-          <div class="file-picker-footer">
-            <div class="selected-count"><strong id="sel-count">${files.length}</strong> of ${files.length} selected</div>
-            <div style="display:flex;gap:8px;align-items:center">
-              <button class="picker-action-btn" onclick="clearRepoResults()" style="color:#2a3a50">clear results</button>
-              <button class="repo-scan-btn" id="repo-scan-btn" onclick="runRepoScan('${parsed.owner}', '${parsed.repo}')">
-                <span class="fetch-spinner" id="repo-scan-spinner"></span>
-                Scan selected
-              </button>
-            </div>
-          </div>
-        </div>`;
-    }
-
-    function toggleFile(i) {
-      const item = document.getElementById('fi-' + i);
-      const cb = document.getElementById('fc-' + i);
-      cb.checked = !cb.checked;
-      item.classList.toggle('checked', cb.checked);
-      updateSelCount();
-    }
-
-    function selectAllFiles(val) {
-      repoFiles.forEach((_, i) => {
-        document.getElementById('fc-' + i).checked = val;
-        document.getElementById('fi-' + i).classList.toggle('checked', val);
-      });
-      updateSelCount();
-    }
-
-    function updateSelCount() {
-      const count = repoFiles.filter((_, i) => document.getElementById('fc-' + i)?.checked).length;
-      const el = document.getElementById('sel-count');
-      if (el) el.textContent = count;
-    }
-
-    async function runRepoScan(owner, repo) {
-      const selected = repoFiles.filter((_, i) => document.getElementById('fc-' + i)?.checked);
-      if (!selected.length) { showError('Select at least one file to scan.'); return; }
-
-      if (selected.length > 8) {
-        const mins = Math.ceil(selected.length * 10 / 60);
-        const proceed = confirm(`You've selected ${selected.length} files. Groq's free tier can scan about 6 files per minute safely.\n\nEstimated time: ~${mins} minute${mins !== 1 ? 's' : ''}.\n\nTip: scan in batches of 6–8 files for best results.\n\nContinue anyway?`);
-        if (!proceed) return;
-      }
-
-      const btn = document.getElementById('repo-scan-btn');
-      const spinner = document.getElementById('repo-scan-spinner');
-      btn.disabled = true; spinner.style.display = 'block';
-
-      const overlay = document.getElementById('scan-overlay');
-      const progress = document.getElementById('scan-progress');
-      const progressBar = document.getElementById('progress-bar');
-      const progressCurrent = document.getElementById('progress-current');
-      const progressFile = document.getElementById('progress-file');
-      overlay.classList.add('active');
-      progress.classList.add('active');
-      document.getElementById('results').style.display = 'none';
-
-      const allVulns = [];
-      const fileResults = [];
-      let scanned = 0;
-
-      const systemPrompt = `You are a strict security code reviewer focused ONLY on genuine security vulnerabilities.
-
-ONLY report issues that are direct security risks — things an attacker could exploit to compromise data, authentication, authorization, or system integrity.
-
-DO NOT report any of the following as vulnerabilities:
-- Code quality issues (null pointer exceptions, poor error handling style, unnecessary instances)
-- Performance issues (memory usage, slow algorithms, unnecessary object creation)
-- General best practices that have no security implication
-- Logging stack traces (unless credentials or secrets are exposed in the log)
-- Use of non-cryptographic Random for non-security purposes (e.g. game randomness, UI, shuffling)
-- Null pointer exceptions or missing null checks unless they lead to a security bypass
-- Any issue that requires physical access to the machine to exploit
-
-ONLY report: SQL injection, XSS, hardcoded secrets/passwords/keys, broken authentication, insecure direct object references, path traversal, command injection, insecure deserialization, CSRF, insecure cryptography used for security purposes, exposed sensitive data, broken access control.
-
-Always respond with ONLY a valid JSON object — no markdown, no explanation, no code fences.
-Use this exact structure:
-{
-  "language": "detected language",
-  "summary": "one sentence overall security assessment",
-  "vulnerabilities": [
-    {
-      "id": "VULN-001",
-      "name": "short vulnerability name",
-      "severity": "CRITICAL|HIGH|MEDIUM|LOW",
-      "type": "e.g. SQL Injection, XSS, Hardcoded Secret",
-      "description": "clear explanation of the vulnerability and why it is dangerous",
-      "location": "line number or function name, or General",
-      "fix": "concrete code fix or remediation advice"
-    }
-  ]
-}
-Severity: CRITICAL=immediate exploitation, HIGH=serious risk, MEDIUM=moderate risk, LOW=minor but genuine security issue.
-Return an empty array for vulnerabilities if no real security issues are found.`;
-
-      for (const file of selected) {
-        progressCurrent.textContent = scanned + 1;
-        document.getElementById('progress-total').textContent = selected.length;
-        progressFile.textContent = file.path;
-        progressBar.style.width = (scanned / selected.length * 100) + '%';
-
-        try {
-          const contentRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}`, {
-            headers: GITHUB_TOKEN ? { 'Authorization': `Bearer ${GITHUB_TOKEN}` } : {}
-          });
-          if (!contentRes.ok) { scanned++; continue; }
-          const contentData = await contentRes.json();
-          const code = atob(contentData.content.replace(/\n/g, ''));
-
-          if (code.length > 80000) {
-            fileResults.push({ path: file.path, skipped: true, reason: 'File too large (>80KB)' });
-            scanned++; continue;
-          }
-
-          const truncated = code.length > 25000;
-          const codeToScan = truncated ? code.slice(0, 25000) : code;
-
-          const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
-            body: JSON.stringify({
-              model: 'llama-3.3-70b-versatile',
-              temperature: 0.1, max_tokens: 1500,
-              messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: `File: ${file.path}${truncated ? ' (truncated to first 25000 chars)' : ''}\n\n${codeToScan}` }
-              ]
-            })
-          });
-
-          if (!res.ok) {
-            if (res.status === 429) {
-              // Rate limited — wait 5 seconds and retry once
-              await new Promise(r => setTimeout(r, 5000));
-              const retry = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
-                body: JSON.stringify({
-                  model: 'llama-3.3-70b-versatile',
-                  temperature: 0.1, max_tokens: 1500,
-                  messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: `File: ${file.path}${truncated ? ' (truncated to first 25000 chars)' : ''}\n\n${codeToScan}` }
-                  ]
-                })
-              });
-              if (!retry.ok) throw new Error(`Rate limited (429) — try scanning fewer files at once`);
-              const retryData = await retry.json();
-              const retryText = retryData.choices[0].message.content || '';
-              const retryClean = retryText.replace(/```json|```/g, '').trim();
-              const retryResult = JSON.parse(retryClean);
-              retryResult.vulns = retryResult.vulnerabilities || [];
-              fileResults.push({ path: file.path, result: retryResult });
-              retryResult.vulns.forEach(v => allVulns.push({ ...v, file: file.path }));
-              scanned++;
-              progressBar.style.width = (scanned / selected.length * 100) + '%';
-              progressCurrent.textContent = scanned;
-              if (scanned < selected.length) await new Promise(r => setTimeout(r, 10000));
-              continue;
-            }
-            throw new Error(`API error ${res.status}`);
-          }
-          const data = await res.json();
-          const rawText = data.choices[0].message.content || '';
-          const clean = rawText.replace(/```json|```/g, '').trim();
-          const result = JSON.parse(clean);
-          result.vulns = result.vulnerabilities || [];
-          fileResults.push({ path: file.path, result });
-          result.vulns.forEach(v => allVulns.push({ ...v, file: file.path }));
-
-        } catch (e) {
-          // Retry once after 3 seconds on any error
-          try {
-            progressFile.textContent = `↻ retrying ${file.path}...`;
-            await new Promise(r => setTimeout(r, 5000));
-            const contentRes2 = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}`, {
-              headers: GITHUB_TOKEN ? { 'Authorization': `Bearer ${GITHUB_TOKEN}` } : {}
-            });
-            if (!contentRes2.ok) throw new Error(`fetch error ${contentRes2.status}`);
-            const contentData2 = await contentRes2.json();
-            const code2 = atob(contentData2.content.replace(/\n/g, ''));
-            const truncated2 = code2.length > 25000;
-            const codeToScan2 = truncated2 ? code2.slice(0, 25000) : code2;
-            const res2 = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
-              body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
-                temperature: 0.1, max_tokens: 1500,
-                messages: [
-                  { role: 'system', content: systemPrompt },
-                  { role: 'user', content: `File: ${file.path}${truncated2 ? ' (truncated)' : ''}\n\n${codeToScan2}` }
-                ]
-              })
-            });
-            if (!res2.ok) throw new Error(`API error ${res2.status}`);
-            const data2 = await res2.json();
-            const raw2 = data2.choices[0].message.content || '';
-            const clean2 = raw2.replace(/```json|```/g, '').trim();
-            const result2 = JSON.parse(clean2);
-            result2.vulns = result2.vulnerabilities || [];
-            fileResults.push({ path: file.path, result: result2 });
-            result2.vulns.forEach(v => allVulns.push({ ...v, file: file.path }));
-          } catch (e2) {
-            fileResults.push({ path: file.path, error: e2.message });
-          }
-        }
-
-        scanned++;
-        progressBar.style.width = (scanned / selected.length * 100) + '%';
-        progressCurrent.textContent = scanned;
-
-        // Avoid hitting Groq rate limit — free tier allows ~6 files/min
-        if (scanned < selected.length) await new Promise(r => setTimeout(r, 10000));
-      }
-
-      overlay.classList.remove('active');
-      progress.classList.remove('active');
-      btn.disabled = false; spinner.style.display = 'none';
-
-      // Merge with previous batches from the same repo
-      if (currentRepoState && currentRepoState.owner === owner && currentRepoState.repo === repo) {
-        // Merge file results — avoid duplicates by path
-        const existingPaths = new Set(currentRepoState.fileResults.map(f => f.path));
-        fileResults.forEach(f => {
-          if (existingPaths.has(f.path)) {
-            // Replace existing result for this file
-            const idx = currentRepoState.fileResults.findIndex(e => e.path === f.path);
-            if (idx !== -1) currentRepoState.fileResults[idx] = f;
-          } else {
-            currentRepoState.fileResults.push(f);
-          }
-        });
-        // Rebuild allVulns from merged fileResults
-        currentRepoState.allVulns = [];
-        currentRepoState.fileResults.forEach(fr => {
-          (fr.result?.vulns || []).forEach(v => currentRepoState.allVulns.push({ ...v, file: fr.path }));
-        });
-      } else {
-        currentRepoState = { owner, repo, fileResults, allVulns };
-      }
-
-      renderRepoResults(currentRepoState.owner, currentRepoState.repo, currentRepoState.fileResults, currentRepoState.allVulns);
-    }
-
-    function renderRepoResults(owner, repo, fileResults, allVulns) {
-      const el = document.getElementById('results');
-      el.style.display = 'block';
-
-      const grade = calcGrade(allVulns);
-      const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 };
-      allVulns.forEach(v => { if (counts[v.severity] !== undefined) counts[v.severity]++; });
-
-      // Save to history
-      const history = loadHistory();
-      history.unshift({
-        language: `${owner}/${repo}`,
-        grade,
-        summary: `${allVulns.length} issue${allVulns.length !== 1 ? 's' : ''} across ${fileResults.length} file${fileResults.length !== 1 ? 's' : ''}`,
-        vulnCount: allVulns.length,
-        counts,
-        scannedAt: new Date().toISOString(),
-        isRepo: true,
-        repoResult: { owner, repo, fileResults, allVulns, grade }
-      });
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 20)));
-      renderHistory();
-      const chips = Object.entries(counts).filter(([,n]) => n > 0)
-        .map(([sev, n]) => `<div class="chip chip-${sev.toLowerCase()}">${n} ${sev}</div>`).join('');
-
-      let cardIndex = 0;
-      const fileBlocks = fileResults.map(fr => {
-        if (fr.skipped) return `<div class="repo-result-file-header"><span class="repo-result-file-name">${fr.path}</span><span style="color:#ffee00;font-size:10px">skipped — ${fr.reason}</span></div>`;
-        if (fr.error) return `<div class="repo-result-file-header"><span class="repo-result-file-name">${fr.path}</span><span style="color:#ff4444;font-size:10px">error</span></div>`;
-        const vulns = fr.result?.vulns || [];
-        if (!vulns.length) return `<div class="repo-result-file-header"><span class="repo-result-file-name">${fr.path}</span><span class="repo-result-clean">✓ clean</span></div>`;
-
-        const cards = vulns.map((v) => {
-          const idx = cardIndex++;
-          return `<div class="vuln-card" id="vc-${idx}">
-            <div class="vuln-card-header" onclick="toggleCard(${idx})">
-              <div class="sev-badge sev-${v.severity}">${v.severity}</div>
-              <div class="vuln-name">${v.name}</div>
-              <div class="vuln-type">${v.type}</div>
-              <div class="chevron">▶</div>
-            </div>
-            <div class="vuln-body">
-              <div class="vuln-section"><div class="vuln-section-label">Location</div><div class="vuln-line">${v.location}</div></div>
-              <div class="vuln-section"><div class="vuln-section-label">Description</div><div class="vuln-desc">${v.description}</div></div>
-              <div class="vuln-section"><div class="vuln-section-label">How to fix</div><div class="vuln-fix">${escHtml(v.fix)}</div></div>
-            </div>
-          </div>`;
-        }).join('');
-
-        return `<div class="repo-result-file-header"><span class="repo-result-file-name">${fr.path}</span><span style="color:#4a6080;font-size:10px">${vulns.length} issue${vulns.length !== 1 ? 's' : ''}</span></div><div class="vuln-list" style="margin-bottom:4px">${cards}</div>`;
-      }).join('');
-
-      el.innerHTML = `
-        <div class="results-header">
-          <div class="grade-badge grade-${grade}">${grade}</div>
-          <div>
-            <div class="results-title">${owner}/${repo}</div>
-            <div class="score-chips" style="margin-top:5px">${chips || '<span style="font-size:11px;color:#00ff88">✓ No issues found</span>'}</div>
-          </div>
-          <button class="export-btn" onclick="window.print()">↓ export PDF</button>
-        </div>
-        <div class="summary-bar">
-          <strong>${allVulns.length} issue${allVulns.length !== 1 ? 's' : ''} found across ${fileResults.length} file${fileResults.length !== 1 ? 's' : ''}</strong>
-        </div>
-        <div>${fileBlocks}</div>`;
-
-      window.scrollTo({ top: document.getElementById('results').offsetTop - 20, behavior: 'smooth' });
-    }
   </script>
 </body>
 </html>
