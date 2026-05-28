@@ -48,6 +48,31 @@
     .logo-title { font-size: 20px; font-weight: 600; color: #fff; letter-spacing: 0.02em; }
     .logo-sub { font-size: 11px; color: #4a6080; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
 
+    .provider-switch {
+      display: flex;
+      gap: 0;
+      border: 1px solid #1e2733;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    .provider-btn {
+      flex: 1;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 12px; font-weight: 500;
+      padding: 9px 0;
+      background: transparent;
+      color: #4a6080;
+      border: none; cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .provider-btn.active { background: #00d4ff18; color: #00d4ff; }
+    .provider-btn:hover:not(.active) { color: #8099b8; background: #0d1520; }
+    .provider-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.6; }
+
     .setup-title {
       font-size: 22px;
       font-weight: 600;
@@ -223,12 +248,21 @@
     <div id="form-section">
       <div class="setup-title">Enter your API key</div>
       <div class="setup-desc">
-        SecureScan uses Groq to run scans. Your key is saved locally in your browser and never uploaded anywhere.
-        Don't have one? Get a free key at <a href="https://console.groq.com" target="_blank">console.groq.com</a>.
+        Choose your AI provider — both are free. Your key is saved locally and never uploaded anywhere.
+      </div>
+
+      <!-- Provider toggle -->
+      <div class="provider-switch">
+        <button class="provider-btn active" id="btn-groq" onclick="setProvider('groq')">
+          <div class="provider-dot"></div> Groq
+        </button>
+        <button class="provider-btn" id="btn-cerebras" onclick="setProvider('cerebras')">
+          <div class="provider-dot"></div> Cerebras
+        </button>
       </div>
 
       <div class="field">
-        <label class="field-label" for="api-key">Groq API Key</label>
+        <label class="field-label" id="key-label">Groq API Key</label>
         <div class="field-row">
           <input
             class="field-input"
@@ -240,7 +274,11 @@
           />
           <button class="toggle-btn" onclick="toggleVisibility('api-key', this)">show</button>
         </div>
-        <div class="error-msg" id="error-msg">Please enter a valid Groq API key (starts with gsk_)</div>
+        <div class="error-msg" id="error-msg">Invalid API key</div>
+      </div>
+
+      <div class="setup-desc" id="provider-hint" style="margin-bottom:16px;margin-top:-8px">
+        Get a free key at <a href="https://console.groq.com" target="_blank" id="provider-link">console.groq.com</a>
       </div>
 
       <button class="submit-btn" id="submit-btn" onclick="saveKey()">
@@ -253,7 +291,7 @@
       <div class="steps">
         <div class="step">
           <div class="step-num">1</div>
-          <div class="step-text">Go to <a href="https://console.groq.com" target="_blank">console.groq.com</a> and sign up for free</div>
+          <div class="step-text" id="step-1">Go to <a href="https://console.groq.com" target="_blank">console.groq.com</a> and sign up for free</div>
         </div>
         <div class="step">
           <div class="step-num">2</div>
@@ -276,9 +314,53 @@
 
   <script>
     const STORAGE_KEY = 'securescan_api_key';
+    const PROVIDER_KEY = 'securescan_provider';
 
     if (localStorage.getItem(STORAGE_KEY)) {
       window.location.replace('app.html');
+    }
+
+    let currentProvider = 'groq';
+
+    const providers = {
+      groq: {
+        label: 'Groq API Key',
+        placeholder: 'gsk_...',
+        hint: 'Get a free key at <a href="https://console.groq.com" target="_blank">console.groq.com</a>',
+        step1: 'Go to <a href="https://console.groq.com" target="_blank">console.groq.com</a> and sign up for free',
+        verify: async (key) => {
+          const res = await fetch('https://api.groq.com/openai/v1/models', {
+            headers: { 'Authorization': `Bearer ${key}` }
+          });
+          if (!res.ok) throw new Error('Invalid Groq key');
+        }
+      },
+      cerebras: {
+        label: 'Cerebras API Key',
+        placeholder: 'csk-...',
+        hint: 'Get a free key at <a href="https://cloud.cerebras.ai" target="_blank">cloud.cerebras.ai</a>',
+        step1: 'Go to <a href="https://cloud.cerebras.ai" target="_blank">cloud.cerebras.ai</a> and sign up for free',
+        verify: async (key) => {
+          const res = await fetch('https://api.cerebras.ai/v1/models', {
+            headers: { 'Authorization': `Bearer ${key}` }
+          });
+          if (!res.ok) throw new Error('Invalid Cerebras key');
+        }
+      }
+    };
+
+    function setProvider(provider) {
+      currentProvider = provider;
+      const p = providers[provider];
+      document.getElementById('btn-groq').classList.toggle('active', provider === 'groq');
+      document.getElementById('btn-cerebras').classList.toggle('active', provider === 'cerebras');
+      document.getElementById('key-label').textContent = p.label;
+      document.getElementById('api-key').placeholder = p.placeholder;
+      document.getElementById('api-key').value = '';
+      document.getElementById('provider-hint').innerHTML = p.hint;
+      document.getElementById('step-1').innerHTML = p.step1;
+      document.getElementById('error-msg').style.display = 'none';
+      document.getElementById('api-key').classList.remove('error');
     }
 
     function toggleVisibility(inputId, btn) {
@@ -295,8 +377,9 @@
       const spinner = document.getElementById('spinner');
       const label = document.getElementById('btn-label');
 
-      if (!key || !key.startsWith('gsk_')) {
+      if (!key) {
         input.classList.add('error');
+        errorMsg.textContent = `Please enter your ${providers[currentProvider].label}`;
         errorMsg.style.display = 'block';
         input.focus();
         return;
@@ -309,15 +392,12 @@
       label.textContent = 'Verifying key...';
 
       try {
-        const res = await fetch('https://api.groq.com/openai/v1/models', {
-          headers: { 'Authorization': `Bearer ${key}` }
-        });
-        if (!res.ok) throw new Error('Invalid key');
-
+        await providers[currentProvider].verify(key);
         localStorage.setItem(STORAGE_KEY, key);
+        localStorage.setItem(PROVIDER_KEY, currentProvider);
+
         document.getElementById('form-section').style.display = 'none';
-        const success = document.getElementById('success-section');
-        success.style.display = 'flex';
+        document.getElementById('success-section').style.display = 'flex';
         setTimeout(() => window.location.replace('app.html'), 1200);
 
       } catch (err) {
