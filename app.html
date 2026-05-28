@@ -205,100 +205,6 @@
     .history-chips { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
     .history-chip { font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 1px 6px; border-radius: 3px; }
 
-    /* ── GitHub panel ── */
-    .github-panel { display: none; margin-bottom: 14px; }
-    .github-panel.active { display: block; }
-    .github-url-row { display: flex; gap: 8px; margin-bottom: 14px; }
-    .github-url-input {
-      flex: 1; font-family: 'IBM Plex Mono', monospace; font-size: 12px;
-      background: #060a0f; color: #c9d8ec;
-      border: 1px solid #1e2733; border-radius: 8px;
-      padding: 11px 14px; outline: none; transition: border-color 0.15s;
-    }
-    .github-url-input:focus { border-color: #00d4ff40; }
-    .github-url-input::placeholder { color: #2a3a50; }
-    .fetch-btn {
-      font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 600;
-      letter-spacing: 0.05em; text-transform: uppercase;
-      padding: 11px 18px; background: #1e2733; color: #8099b8;
-      border: 1px solid #2a3a50; border-radius: 8px; cursor: pointer;
-      white-space: nowrap; transition: all 0.15s; display: flex; align-items: center; gap: 7px;
-    }
-    .fetch-btn:hover { background: #2a3a50; color: #c9d8ec; }
-    .fetch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .fetch-spinner { width: 12px; height: 12px; border: 2px solid #2a3a5040; border-top-color: #8099b8; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
-
-    .file-picker { border: 1px solid #1e2733; border-radius: 10px; overflow: hidden; background: #060a0f; }
-    .file-picker-header {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; background: #0d1520; border-bottom: 1px solid #1e2733;
-    }
-    .file-picker-title { font-size: 12px; font-weight: 500; color: #c9d8ec; flex: 1; }
-    .file-picker-meta { font-size: 11px; font-family: 'IBM Plex Mono', monospace; color: #4a6080; }
-    .file-picker-actions { display: flex; gap: 8px; }
-    .picker-action-btn {
-      font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #4a6080;
-      background: transparent; border: 1px solid #1e2733; border-radius: 4px;
-      padding: 3px 8px; cursor: pointer; transition: all 0.15s;
-    }
-    .picker-action-btn:hover { color: #00d4ff; border-color: #00d4ff40; }
-
-    .file-list { max-height: 280px; overflow-y: auto; padding: 6px 0; }
-    .file-list::-webkit-scrollbar { width: 4px; }
-    .file-list::-webkit-scrollbar-track { background: transparent; }
-    .file-list::-webkit-scrollbar-thumb { background: #1e2733; border-radius: 2px; }
-
-    .file-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 7px 14px; cursor: pointer; transition: background 0.1s;
-      user-select: none;
-    }
-    .file-item:hover { background: #0d1520; }
-    .file-item input[type=checkbox] { accent-color: #00d4ff; width: 13px; height: 13px; flex-shrink: 0; cursor: pointer; }
-    .file-item-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8099b8; flex: 1; }
-    .file-item-name span { color: #4a6080; }
-    .file-item-size { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #2a3a50; }
-    .file-item.checked .file-item-name { color: #c9d8ec; }
-
-    .file-picker-footer {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 14px; border-top: 1px solid #1e2733; background: #0d1520;
-    }
-    .selected-count { font-size: 11px; font-family: 'IBM Plex Mono', monospace; color: #4a6080; }
-    .selected-count strong { color: #00d4ff; }
-
-    .repo-scan-btn {
-      font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 600;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      padding: 8px 20px; background: #00d4ff; color: #060a0f;
-      border: none; border-radius: 6px; cursor: pointer;
-      display: flex; align-items: center; gap: 7px; transition: all 0.15s;
-    }
-    .repo-scan-btn:hover { background: #33ddff; }
-    .repo-scan-btn:disabled { background: #1e2733; color: #2a3a50; cursor: not-allowed; }
-
-    .scan-progress {
-      display: none; margin-bottom: 14px;
-      padding: 14px 16px; background: #060a0f; border: 1px solid #1e2733; border-radius: 10px;
-    }
-    .scan-progress.active { display: block; }
-    .progress-label { font-size: 12px; font-family: 'IBM Plex Mono', monospace; color: #8099b8; margin-bottom: 10px; }
-    .progress-label strong { color: #00d4ff; }
-    .progress-bar-wrap { height: 4px; background: #1e2733; border-radius: 2px; overflow: hidden; }
-    .progress-bar-fill { height: 100%; background: #00d4ff; border-radius: 2px; transition: width 0.3s ease; width: 0%; }
-    .progress-file { font-size: 10px; font-family: 'IBM Plex Mono', monospace; color: #2a3a50; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .repo-result-file-header {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 12px; background: #0d1520;
-      border: 1px solid #1e2733; border-radius: 7px;
-      margin-bottom: 8px; margin-top: 18px;
-      font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #4a6080;
-    }
-    .repo-result-file-header:first-child { margin-top: 0; }
-    .repo-result-file-name { color: #c9d8ec; flex: 1; }
-    .repo-result-clean { color: #00ff88; font-size: 10px; }
-
     /* ── Print ── */
     @media print {
       body { background: #fff; color: #000; }
@@ -367,21 +273,6 @@
       <div class="tabs">
         <button class="tab active" id="tab-paste" onclick="switchTab('paste')">Paste code</button>
         <button class="tab" id="tab-upload" onclick="switchTab('upload')">Upload file</button>
-        <button class="tab" id="tab-github" onclick="switchTab('github')">GitHub repo</button>
-      </div>
-
-      <!-- GitHub panel -->
-      <div class="github-panel" id="github-panel">
-        <div class="github-url-row">
-          <input class="github-url-input" type="text" id="github-url"
-            placeholder="https://github.com/owner/repo"
-            onkeydown="if(event.key==='Enter') fetchRepo()" />
-          <button class="fetch-btn" id="fetch-btn" onclick="fetchRepo()">
-            <span class="fetch-spinner" id="fetch-spinner"></span>
-            <span id="fetch-label">Fetch files</span>
-          </button>
-        </div>
-        <div id="file-picker-wrap"></div>
       </div>
 
       <div class="code-wrap" id="paste-panel">
@@ -424,12 +315,6 @@
         <div class="scan-hint">Powered by Groq · llama-3.3-70b-versatile</div>
       </div>
 
-      <div class="scan-progress" id="scan-progress">
-        <div class="progress-label"><strong id="progress-current">0</strong> / <span id="progress-total">0</span> files scanned</div>
-        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar"></div></div>
-        <div class="progress-file" id="progress-file">—</div>
-      </div>
-
       <div class="results" id="results"></div>
     </div>
 
@@ -448,7 +333,6 @@
     const STORAGE_KEY = 'securescan_api_key';
     const HISTORY_KEY = 'securescan_history';
 
-    // Guard: if no key saved, send back to setup
     const API_KEY = localStorage.getItem(STORAGE_KEY);
     if (!API_KEY) window.location.replace('index.html');
 
@@ -466,14 +350,10 @@
       currentTab = tab;
       document.getElementById('tab-paste').classList.toggle('active', tab === 'paste');
       document.getElementById('tab-upload').classList.toggle('active', tab === 'upload');
-      document.getElementById('tab-github').classList.toggle('active', tab === 'github');
       document.getElementById('paste-panel').style.display = tab === 'paste' ? 'block' : 'none';
       const up = document.getElementById('upload-panel');
       up.style.display = tab === 'upload' ? 'block' : 'none';
       up.classList.toggle('active', tab === 'upload');
-      document.getElementById('github-panel').classList.toggle('active', tab === 'github');
-      // show/hide scan btn
-      document.getElementById('scan-row').style.display = tab === 'github' ? 'none' : 'flex';
     }
     switchTab('paste');
 
@@ -830,11 +710,19 @@ Important context: This tool runs entirely in a single user's local browser — 
     }
 
     let repoFiles = []; // { path, size, sha }
+    function clearRepoResults() {
+      currentRepoState = null;
+      document.getElementById('results').style.display = 'none';
+    }
 
     async function fetchRepo() {
       const url = document.getElementById('github-url').value.trim();
       const parsed = parseGithubUrl(url);
       if (!parsed) { showError('Invalid GitHub URL. Use format: https://github.com/owner/repo'); return; }
+
+      // Reset accumulated state when fetching a new repo
+      currentRepoState = null;
+      document.getElementById('results').style.display = 'none';
 
       const fetchBtn = document.getElementById('fetch-btn');
       const fetchSpinner = document.getElementById('fetch-spinner');
@@ -843,14 +731,16 @@ Important context: This tool runs entirely in a single user's local browser — 
       document.getElementById('file-picker-wrap').innerHTML = '';
 
       try {
+        const ghHeaders = GITHUB_TOKEN ? { 'Authorization': `Bearer ${GITHUB_TOKEN}` } : {};
+
         // Get default branch first
-        const repoRes = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`);
-        if (!repoRes.ok) throw new Error(repoRes.status === 404 ? 'Repo not found. Is it public?' : `GitHub API error ${repoRes.status}`);
+        const repoRes = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`, { headers: ghHeaders });
+        if (!repoRes.ok) throw new Error(repoRes.status === 404 ? 'Repo not found. Is it public?' : repoRes.status === 403 ? 'GitHub rate limit hit. Add a GitHub token on the setup page to fix this.' : `GitHub API error ${repoRes.status}`);
         const repoData = await repoRes.json();
         const branch = repoData.default_branch || 'main';
 
         // Get file tree
-        const treeRes = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}/git/trees/${branch}?recursive=1`);
+        const treeRes = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}/git/trees/${branch}?recursive=1`, { headers: ghHeaders });
         if (!treeRes.ok) throw new Error(`Could not fetch file tree (${treeRes.status})`);
         const treeData = await treeRes.json();
 
@@ -895,10 +785,13 @@ Important context: This tool runs entirely in a single user's local browser — 
           <div class="file-list">${rows}</div>
           <div class="file-picker-footer">
             <div class="selected-count"><strong id="sel-count">${files.length}</strong> of ${files.length} selected</div>
-            <button class="repo-scan-btn" id="repo-scan-btn" onclick="runRepoScan('${parsed.owner}', '${parsed.repo}')">
-              <span class="fetch-spinner" id="repo-scan-spinner"></span>
-              Scan selected
-            </button>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="picker-action-btn" onclick="clearRepoResults()" style="color:#2a3a50">clear results</button>
+              <button class="repo-scan-btn" id="repo-scan-btn" onclick="runRepoScan('${parsed.owner}', '${parsed.repo}')">
+                <span class="fetch-spinner" id="repo-scan-spinner"></span>
+                Scan selected
+              </button>
+            </div>
           </div>
         </div>`;
     }
@@ -929,6 +822,12 @@ Important context: This tool runs entirely in a single user's local browser — 
       const selected = repoFiles.filter((_, i) => document.getElementById('fc-' + i)?.checked);
       if (!selected.length) { showError('Select at least one file to scan.'); return; }
 
+      if (selected.length > 8) {
+        const mins = Math.ceil(selected.length * 10 / 60);
+        const proceed = confirm(`You've selected ${selected.length} files. Groq's free tier can scan about 6 files per minute safely.\n\nEstimated time: ~${mins} minute${mins !== 1 ? 's' : ''}.\n\nTip: scan in batches of 6–8 files for best results.\n\nContinue anyway?`);
+        if (!proceed) return;
+      }
+
       const btn = document.getElementById('repo-scan-btn');
       const spinner = document.getElementById('repo-scan-spinner');
       btn.disabled = true; spinner.style.display = 'block';
@@ -946,12 +845,26 @@ Important context: This tool runs entirely in a single user's local browser — 
       const fileResults = [];
       let scanned = 0;
 
-      const systemPrompt = `You are a professional security code reviewer. Analyze code for security vulnerabilities.
+      const systemPrompt = `You are a strict security code reviewer focused ONLY on genuine security vulnerabilities.
+
+ONLY report issues that are direct security risks — things an attacker could exploit to compromise data, authentication, authorization, or system integrity.
+
+DO NOT report any of the following as vulnerabilities:
+- Code quality issues (null pointer exceptions, poor error handling style, unnecessary instances)
+- Performance issues (memory usage, slow algorithms, unnecessary object creation)
+- General best practices that have no security implication
+- Logging stack traces (unless credentials or secrets are exposed in the log)
+- Use of non-cryptographic Random for non-security purposes (e.g. game randomness, UI, shuffling)
+- Null pointer exceptions or missing null checks unless they lead to a security bypass
+- Any issue that requires physical access to the machine to exploit
+
+ONLY report: SQL injection, XSS, hardcoded secrets/passwords/keys, broken authentication, insecure direct object references, path traversal, command injection, insecure deserialization, CSRF, insecure cryptography used for security purposes, exposed sensitive data, broken access control.
+
 Always respond with ONLY a valid JSON object — no markdown, no explanation, no code fences.
 Use this exact structure:
 {
   "language": "detected language",
-  "summary": "one sentence overall assessment",
+  "summary": "one sentence overall security assessment",
   "vulnerabilities": [
     {
       "id": "VULN-001",
@@ -964,10 +877,8 @@ Use this exact structure:
     }
   ]
 }
-Severity: CRITICAL=immediate exploitation, HIGH=serious risk, MEDIUM=moderate risk, LOW=best practice issue.
-Return an empty array for vulnerabilities if the code is clean.
-
-Important context: This tool runs entirely in a single user's local browser. Do not flag localStorage usage as a vulnerability. Do not flag hardcoded localhost URLs or local API endpoints. Focus only on vulnerabilities genuinely exploitable in the context of the code being reviewed.`;
+Severity: CRITICAL=immediate exploitation, HIGH=serious risk, MEDIUM=moderate risk, LOW=minor but genuine security issue.
+Return an empty array for vulnerabilities if no real security issues are found.`;
 
       for (const file of selected) {
         progressCurrent.textContent = scanned + 1;
@@ -976,7 +887,9 @@ Important context: This tool runs entirely in a single user's local browser. Do 
         progressBar.style.width = (scanned / selected.length * 100) + '%';
 
         try {
-          const contentRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}`);
+          const contentRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}`, {
+            headers: GITHUB_TOKEN ? { 'Authorization': `Bearer ${GITHUB_TOKEN}` } : {}
+          });
           if (!contentRes.ok) { scanned++; continue; }
           const contentData = await contentRes.json();
           const code = atob(contentData.content.replace(/\n/g, ''));
@@ -1002,7 +915,38 @@ Important context: This tool runs entirely in a single user's local browser. Do 
             })
           });
 
-          if (!res.ok) throw new Error(`API error ${res.status}`);
+          if (!res.ok) {
+            if (res.status === 429) {
+              // Rate limited — wait 5 seconds and retry once
+              await new Promise(r => setTimeout(r, 5000));
+              const retry = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+                body: JSON.stringify({
+                  model: 'llama-3.3-70b-versatile',
+                  temperature: 0.1, max_tokens: 1500,
+                  messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: `File: ${file.path}${truncated ? ' (truncated to first 25000 chars)' : ''}\n\n${codeToScan}` }
+                  ]
+                })
+              });
+              if (!retry.ok) throw new Error(`Rate limited (429) — try scanning fewer files at once`);
+              const retryData = await retry.json();
+              const retryText = retryData.choices[0].message.content || '';
+              const retryClean = retryText.replace(/```json|```/g, '').trim();
+              const retryResult = JSON.parse(retryClean);
+              retryResult.vulns = retryResult.vulnerabilities || [];
+              fileResults.push({ path: file.path, result: retryResult });
+              retryResult.vulns.forEach(v => allVulns.push({ ...v, file: file.path }));
+              scanned++;
+              progressBar.style.width = (scanned / selected.length * 100) + '%';
+              progressCurrent.textContent = scanned;
+              if (scanned < selected.length) await new Promise(r => setTimeout(r, 10000));
+              continue;
+            }
+            throw new Error(`API error ${res.status}`);
+          }
           const data = await res.json();
           const rawText = data.choices[0].message.content || '';
           const clean = rawText.replace(/```json|```/g, '').trim();
@@ -1012,19 +956,78 @@ Important context: This tool runs entirely in a single user's local browser. Do 
           result.vulns.forEach(v => allVulns.push({ ...v, file: file.path }));
 
         } catch (e) {
-          fileResults.push({ path: file.path, error: e.message });
+          // Retry once after 3 seconds on any error
+          try {
+            progressFile.textContent = `↻ retrying ${file.path}...`;
+            await new Promise(r => setTimeout(r, 5000));
+            const contentRes2 = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file.path}`, {
+              headers: GITHUB_TOKEN ? { 'Authorization': `Bearer ${GITHUB_TOKEN}` } : {}
+            });
+            if (!contentRes2.ok) throw new Error(`fetch error ${contentRes2.status}`);
+            const contentData2 = await contentRes2.json();
+            const code2 = atob(contentData2.content.replace(/\n/g, ''));
+            const truncated2 = code2.length > 25000;
+            const codeToScan2 = truncated2 ? code2.slice(0, 25000) : code2;
+            const res2 = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+              body: JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                temperature: 0.1, max_tokens: 1500,
+                messages: [
+                  { role: 'system', content: systemPrompt },
+                  { role: 'user', content: `File: ${file.path}${truncated2 ? ' (truncated)' : ''}\n\n${codeToScan2}` }
+                ]
+              })
+            });
+            if (!res2.ok) throw new Error(`API error ${res2.status}`);
+            const data2 = await res2.json();
+            const raw2 = data2.choices[0].message.content || '';
+            const clean2 = raw2.replace(/```json|```/g, '').trim();
+            const result2 = JSON.parse(clean2);
+            result2.vulns = result2.vulnerabilities || [];
+            fileResults.push({ path: file.path, result: result2 });
+            result2.vulns.forEach(v => allVulns.push({ ...v, file: file.path }));
+          } catch (e2) {
+            fileResults.push({ path: file.path, error: e2.message });
+          }
         }
 
         scanned++;
         progressBar.style.width = (scanned / selected.length * 100) + '%';
         progressCurrent.textContent = scanned;
+
+        // Avoid hitting Groq rate limit — free tier allows ~6 files/min
+        if (scanned < selected.length) await new Promise(r => setTimeout(r, 10000));
       }
 
       overlay.classList.remove('active');
       progress.classList.remove('active');
       btn.disabled = false; spinner.style.display = 'none';
 
-      renderRepoResults(owner, repo, fileResults, allVulns);
+      // Merge with previous batches from the same repo
+      if (currentRepoState && currentRepoState.owner === owner && currentRepoState.repo === repo) {
+        // Merge file results — avoid duplicates by path
+        const existingPaths = new Set(currentRepoState.fileResults.map(f => f.path));
+        fileResults.forEach(f => {
+          if (existingPaths.has(f.path)) {
+            // Replace existing result for this file
+            const idx = currentRepoState.fileResults.findIndex(e => e.path === f.path);
+            if (idx !== -1) currentRepoState.fileResults[idx] = f;
+          } else {
+            currentRepoState.fileResults.push(f);
+          }
+        });
+        // Rebuild allVulns from merged fileResults
+        currentRepoState.allVulns = [];
+        currentRepoState.fileResults.forEach(fr => {
+          (fr.result?.vulns || []).forEach(v => currentRepoState.allVulns.push({ ...v, file: fr.path }));
+        });
+      } else {
+        currentRepoState = { owner, repo, fileResults, allVulns };
+      }
+
+      renderRepoResults(currentRepoState.owner, currentRepoState.repo, currentRepoState.fileResults, currentRepoState.allVulns);
     }
 
     function renderRepoResults(owner, repo, fileResults, allVulns) {

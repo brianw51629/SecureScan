@@ -238,7 +238,7 @@
             onkeydown="if(event.key==='Enter') saveKey()"
             autofocus
           />
-          <button class="toggle-btn" onclick="toggleVisibility()">show</button>
+          <button class="toggle-btn" onclick="toggleVisibility('api-key', this)">show</button>
         </div>
         <div class="error-msg" id="error-msg">Please enter a valid Groq API key (starts with gsk_)</div>
       </div>
@@ -277,14 +277,12 @@
   <script>
     const STORAGE_KEY = 'securescan_api_key';
 
-    // If key already saved, skip straight to app
     if (localStorage.getItem(STORAGE_KEY)) {
       window.location.replace('app.html');
     }
 
-    function toggleVisibility() {
-      const input = document.getElementById('api-key');
-      const btn = event.target;
+    function toggleVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
       if (input.type === 'password') { input.type = 'text'; btn.textContent = 'hide'; }
       else { input.type = 'password'; btn.textContent = 'show'; }
     }
@@ -297,7 +295,6 @@
       const spinner = document.getElementById('spinner');
       const label = document.getElementById('btn-label');
 
-      // Basic validation
       if (!key || !key.startsWith('gsk_')) {
         input.classList.add('error');
         errorMsg.style.display = 'block';
@@ -307,7 +304,6 @@
       input.classList.remove('error');
       errorMsg.style.display = 'none';
 
-      // Verify the key works with a lightweight API call
       btn.disabled = true;
       spinner.style.display = 'block';
       label.textContent = 'Verifying key...';
@@ -316,19 +312,12 @@
         const res = await fetch('https://api.groq.com/openai/v1/models', {
           headers: { 'Authorization': `Bearer ${key}` }
         });
+        if (!res.ok) throw new Error('Invalid key');
 
-        if (!res.ok) {
-          throw new Error('Invalid key');
-        }
-
-        // Key is valid — save and redirect
         localStorage.setItem(STORAGE_KEY, key);
-
-        // Show success state
         document.getElementById('form-section').style.display = 'none';
         const success = document.getElementById('success-section');
         success.style.display = 'flex';
-
         setTimeout(() => window.location.replace('app.html'), 1200);
 
       } catch (err) {
