@@ -143,6 +143,41 @@
     .history-chips { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
     .history-chip { font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 1px 6px; border-radius: 3px; }
 
+    /* ── False positive ── */
+    .dismiss-btn {
+      font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+      color: #2a3a50; background: transparent;
+      border: 1px solid #1e2733; border-radius: 4px;
+      padding: 3px 8px; cursor: pointer;
+      transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+    }
+    .dismiss-btn:hover { color: #ff4444; border-color: #ff444440; }
+    .vuln-card.dismissed {
+      opacity: 0.4;
+      border-color: #1e2733;
+    }
+    .vuln-card.dismissed .vuln-card-header { cursor: default; }
+    .dismissed-badge {
+      font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+      color: #2a3a50; padding: 2px 7px;
+      background: #0d1520; border: 1px solid #1e2733;
+      border-radius: 3px; letter-spacing: 0.05em;
+    }
+    .restore-btn {
+      font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+      color: #2a3a50; background: transparent; border: none;
+      cursor: pointer; padding: 0; transition: color 0.15s;
+      text-decoration: underline;
+    }
+    .restore-btn:hover { color: #4a6080; }
+    .fp-summary {
+      font-size: 11px; color: #2a3a50;
+      font-family: 'IBM Plex Mono', monospace;
+      margin-top: 8px;
+    }
+    .fp-summary span { color: #4a6080; cursor: pointer; text-decoration: underline; }
+    .fp-summary span:hover { color: #8099b8; }
+
     /* ── Confidence bar ── */
     .confidence-wrap {
       margin-top: 12px; padding-top: 12px;
@@ -456,6 +491,7 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
       const el = document.getElementById('results');
       el.style.display = 'block';
       const grade = result.grade || 'A';
+      const dismissedIds = getDismissed();
 
       if (!result.vulnerabilities || result.vulnerabilities.length === 0) {
         el.innerHTML = `
@@ -489,14 +525,21 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
       const cards = sorted.map((v, i) => {
         const conf = v.confidence ?? 50;
         const confColor = conf >= 90 ? '#ff4444' : conf >= 70 ? '#ff9900' : conf >= 50 ? '#ffee00' : '#4a6080';
+        const isDismissed = dismissedIds.has(v.id || v.name);
         return `
-        <div class="vuln-card" id="vc-${i}">
-          <div class="vuln-card-header" onclick="toggleCard(${i})">
+        <div class="vuln-card${isDismissed ? ' dismissed' : ''}" id="vc-${i}">
+          <div class="vuln-card-header" onclick="${isDismissed ? '' : `toggleCard(${i})`}">
             <div class="sev-badge sev-${v.severity}">${v.severity}</div>
             <div class="vuln-name">${v.name}</div>
             <div class="vuln-type">${v.type}</div>
-            <div class="chevron">▶</div>
+            ${isDismissed
+              ? `<span class="dismissed-badge">false positive</span>
+                 <button class="restore-btn" onclick="event.stopPropagation();restoreFinding('${escHtml(v.id || v.name)}',${i})">restore</button>`
+              : `<button class="dismiss-btn" onclick="event.stopPropagation();dismissFinding('${escHtml(v.id || v.name)}',${i})">✕ false positive</button>
+                 <div class="chevron">▶</div>`
+            }
           </div>
+          ${isDismissed ? '' : `
           <div class="vuln-body">
             <div class="vuln-section"><div class="vuln-section-label">Location</div><div class="vuln-line">${v.location}</div></div>
             <div class="vuln-section"><div class="vuln-section-label">Description</div><div class="vuln-desc">${v.description}</div></div>
@@ -511,12 +554,16 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
               </div>
               ${v.confidence_reason ? `<div class="confidence-note">${v.confidence_reason}</div>` : ''}
             </div>
-          </div>
+          </div>`}
         </div>`; }).join('');
+
+      const activeVulns = sorted.filter(v => !dismissedIds.has(v.id || v.name));
+      const dismissedCount = sorted.length - activeVulns.length;
+      const activeGrade = calcGrade(activeVulns);
 
       el.innerHTML = `
         <div class="results-header">
-          <div class="grade-badge grade-${grade}">${grade}</div>
+          <div class="grade-badge grade-${activeGrade}">${activeGrade}</div>
           <div>
             <div class="results-title">Scan results — ${result.language || 'code'}</div>
             <div class="score-chips" style="margin-top:5px">${chips}</div>
@@ -524,12 +571,45 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
           <button class="export-btn" onclick="window.print()">↓ export PDF</button>
         </div>
         <div class="summary-bar">
-          <strong>${result.vulnerabilities.length} issue${result.vulnerabilities.length !== 1 ? 's' : ''} found</strong>
+          <strong>${sorted.length} issue${sorted.length !== 1 ? 's' : ''} found</strong>
           <span>·</span><span>${result.summary}</span>
+          ${dismissedCount > 0 ? `<span style="margin-left:auto;font-size:11px;color:#2a3a50">${dismissedCount} dismissed · <span style="cursor:pointer;text-decoration:underline" onclick="clearDismissed()">clear all</span></span>` : ''}
         </div>
         <div class="vuln-list">${cards}</div>`;
 
       toggleCard(0);
+    }
+
+    // ── False positives ──
+    const FP_KEY = 'securescan_false_positives';
+
+    function getDismissed() {
+      try { return new Set(JSON.parse(localStorage.getItem(FP_KEY)) || []); }
+      catch { return new Set(); }
+    }
+
+    function saveDismissed(set) {
+      localStorage.setItem(FP_KEY, JSON.stringify([...set]));
+    }
+
+    function dismissFinding(id, cardIndex) {
+      const dismissed = getDismissed();
+      dismissed.add(id);
+      saveDismissed(dismissed);
+      // Re-render results with updated dismissed set
+      if (currentResult) renderResults(currentResult);
+    }
+
+    function restoreFinding(id, cardIndex) {
+      const dismissed = getDismissed();
+      dismissed.delete(id);
+      saveDismissed(dismissed);
+      if (currentResult) renderResults(currentResult);
+    }
+
+    function clearDismissed() {
+      localStorage.removeItem(FP_KEY);
+      if (currentResult) renderResults(currentResult);
     }
 
     function toggleCard(i) { const c = document.getElementById('vc-' + i); if (c) c.classList.toggle('open'); }
