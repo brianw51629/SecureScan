@@ -178,6 +178,57 @@
     .fp-summary span { color: #4a6080; cursor: pointer; text-decoration: underline; }
     .fp-summary span:hover { color: #8099b8; }
 
+    /* ── Compare tab ── */
+    .compare-panel { display: none; margin-bottom: 14px; }
+    .compare-panel.active { display: block; }
+    .compare-editors {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      margin-bottom: 14px;
+    }
+    .compare-editor-label {
+      font-size: 10px; font-family: 'IBM Plex Mono', monospace;
+      color: #4a6080; text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+    }
+    .compare-editor-label .before-dot { width: 7px; height: 7px; border-radius: 50%; background: #ff9900; flex-shrink: 0; }
+    .compare-editor-label .after-dot  { width: 7px; height: 7px; border-radius: 50%; background: #00ff88; flex-shrink: 0; }
+    .compare-textarea {
+      font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.7;
+      width: 100%; min-height: 200px;
+      background: #060a0f; color: #c9d8ec;
+      border: 1px solid #1e2733; border-radius: 8px;
+      padding: 14px 16px; resize: vertical; outline: none;
+      transition: border-color 0.15s;
+    }
+    .compare-textarea:focus { border-color: #00d4ff40; }
+    .compare-textarea::placeholder { color: #2a3a50; }
+
+    /* Compare results */
+    .compare-section { margin-bottom: 20px; }
+    .compare-section-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 14px; border-radius: 7px; margin-bottom: 10px;
+      font-size: 12px; font-weight: 600;
+    }
+    .compare-section-header.fixed   { background: #0d2a1a; color: #00ff88; border: 1px solid #00ff8830; }
+    .compare-section-header.new     { background: #2a0a0a; color: #ff4444; border: 1px solid #ff444430; }
+    .compare-section-header.unchanged { background: #0d1520; color: #4a6080; border: 1px solid #1e2733; }
+    .compare-section-count {
+      margin-left: auto; font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; opacity: 0.7;
+    }
+    .compare-grade-row {
+      display: flex; align-items: center; gap: 16px;
+      padding: 14px 16px; background: #0d1520;
+      border: 1px solid #1e2733; border-radius: 9px;
+      margin-bottom: 16px;
+    }
+    .compare-grade-block { text-align: center; }
+    .compare-grade-label { font-size: 10px; font-family: 'IBM Plex Mono', monospace; color: #2a3a50; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .compare-grade-val { font-size: 28px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
+    .compare-arrow { font-size: 22px; color: #1e2733; flex: 1; text-align: center; }
+    .compare-improvement { font-size: 12px; margin-left: auto; font-family: 'IBM Plex Mono', monospace; }
+
     /* ── Confidence bar ── */
     .confidence-wrap {
       margin-top: 12px; padding-top: 12px;
@@ -274,6 +325,21 @@
       <div class="tabs">
         <button class="tab active" id="tab-paste" onclick="switchTab('paste')">Paste code</button>
         <button class="tab" id="tab-upload" onclick="switchTab('upload')">Upload file</button>
+        <button class="tab" id="tab-compare" onclick="switchTab('compare')">Compare</button>
+      </div>
+
+      <!-- Compare panel -->
+      <div class="compare-panel" id="compare-panel">
+        <div class="compare-editors">
+          <div>
+            <div class="compare-editor-label"><div class="before-dot"></div>Before (original)</div>
+            <textarea class="compare-textarea" id="compare-before" placeholder="// Paste the original version of your code here..."></textarea>
+          </div>
+          <div>
+            <div class="compare-editor-label"><div class="after-dot"></div>After (modified)</div>
+            <textarea class="compare-textarea" id="compare-after" placeholder="// Paste the updated version of your code here..."></textarea>
+          </div>
+        </div>
       </div>
 
       <div class="code-wrap" id="paste-panel">
@@ -367,10 +433,14 @@
       currentTab = tab;
       document.getElementById('tab-paste').classList.toggle('active', tab === 'paste');
       document.getElementById('tab-upload').classList.toggle('active', tab === 'upload');
+      document.getElementById('tab-compare').classList.toggle('active', tab === 'compare');
       document.getElementById('paste-panel').style.display = tab === 'paste' ? 'block' : 'none';
       const up = document.getElementById('upload-panel');
       up.style.display = tab === 'upload' ? 'block' : 'none';
       up.classList.toggle('active', tab === 'upload');
+      document.getElementById('compare-panel').classList.toggle('active', tab === 'compare');
+      document.getElementById('scan-label').textContent = tab === 'compare' ? 'Compare scans' : 'Scan code';
+      document.getElementById('results').style.display = 'none';
     }
     switchTab('paste');
 
@@ -407,6 +477,7 @@
     }
 
     async function runScan() {
+      if (currentTab === 'compare') { await runCompare(); return; }
       const code = getCode();
       if (!code) { showError('No code to scan. Paste some code or upload a file first.'); return; }
       if (code.length > 30000) { showError('Code too large (max ~30,000 chars). Try a smaller snippet.'); return; }
@@ -580,7 +651,182 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
       toggleCard(0);
     }
 
-    // ── False positives ──
+    // ── Compare ──
+    async function runCompare() {
+      const before = document.getElementById('compare-before').value.trim();
+      const after = document.getElementById('compare-after').value.trim();
+      if (!before || !after) { showError('Paste code in both editors to compare.'); return; }
+
+      const btn = document.getElementById('scan-btn');
+      const spinner = document.getElementById('spinner');
+      const label = document.getElementById('scan-label');
+      const overlay = document.getElementById('scan-overlay');
+      btn.disabled = true; spinner.style.display = 'block'; label.textContent = 'Scanning both...';
+      overlay.classList.add('active');
+      document.getElementById('results').style.display = 'none';
+
+      const systemPrompt = `You are a professional security code reviewer. Analyze code for security vulnerabilities.
+Always respond with ONLY a valid JSON object — no markdown, no explanation, no code fences.
+Use this exact structure:
+{
+  "language": "detected language",
+  "summary": "one sentence overall assessment",
+  "vulnerabilities": [
+    {
+      "id": "VULN-001",
+      "name": "short vulnerability name",
+      "severity": "CRITICAL|HIGH|MEDIUM|LOW",
+      "type": "e.g. SQL Injection, XSS, Hardcoded Secret",
+      "description": "clear explanation of the vulnerability and why it is dangerous",
+      "location": "line number or function name, or General",
+      "fix": "concrete code fix or remediation advice",
+      "confidence": 85,
+      "confidence_reason": "one short sentence explaining why you are or aren't certain"
+    }
+  ]
+}
+Severity: CRITICAL=immediate exploitation, HIGH=serious risk, MEDIUM=moderate risk, LOW=best practice issue.
+Return an empty array for vulnerabilities if the code is clean.
+Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backend as vulnerabilities.`;
+
+      async function scanCode(code, versionLabel) {
+        const res = await fetch(providerCfg.url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+          body: JSON.stringify({
+            model: providerCfg.model,
+            temperature: 0.1,
+            ...(PROVIDER === 'cerebras' ? { max_completion_tokens: 1500 } : { max_tokens: 1500 }),
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: `${versionLabel}\n\n${code}` }
+            ]
+          })
+        });
+        if (!res.ok) throw new Error(`API error ${res.status}`);
+        const data = await res.json();
+        const raw = data.choices[0].message.content || '';
+        const result = JSON.parse(raw.replace(/```json|```/g, '').trim());
+        return result;
+      }
+
+      try {
+        document.getElementById('scan-overlay-text') && (document.querySelector('.scan-overlay-text').textContent = 'Scanning before...');
+        const beforeResult = await scanCode(before, 'Scan the BEFORE version:');
+        document.querySelector('.scan-overlay-text').textContent = 'Scanning after...';
+        const afterResult = await scanCode(after, 'Scan the AFTER version:');
+        renderCompareResults(beforeResult, afterResult);
+      } catch(err) {
+        showError(`Compare failed: ${err.message}`);
+      } finally {
+        btn.disabled = false; spinner.style.display = 'none'; label.textContent = 'Compare scans';
+        overlay.classList.remove('active');
+        document.querySelector('.scan-overlay-text').textContent = 'Scanning...';
+      }
+    }
+
+    function matchKey(v) { return `${v.name}__${v.type}`.toLowerCase().replace(/\s+/g,'_'); }
+
+    function renderCompareResults(beforeResult, afterResult) {
+      const el = document.getElementById('results');
+      el.style.display = 'block';
+
+      const beforeVulns = beforeResult.vulnerabilities || [];
+      const afterVulns = afterResult.vulnerabilities || [];
+
+      const beforeKeys = new Map(beforeVulns.map(v => [matchKey(v), v]));
+      const afterKeys = new Map(afterVulns.map(v => [matchKey(v), v]));
+
+      const fixed     = beforeVulns.filter(v => !afterKeys.has(matchKey(v)));
+      const newIssues = afterVulns.filter(v => !beforeKeys.has(matchKey(v)));
+      const unchanged = afterVulns.filter(v => beforeKeys.has(matchKey(v)));
+
+      const beforeGrade = calcGrade(beforeVulns);
+      const afterGrade  = calcGrade(afterVulns);
+      const gradeColors = { A: '#00ff88', B: '#44dd88', C: '#ffee00', D: '#ff9900', F: '#ff4444' };
+      const sevOrder = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
+
+      const gradeImproved = sevOrder[afterGrade] > sevOrder[beforeGrade];
+      const gradeWorsened = sevOrder[afterGrade] < sevOrder[beforeGrade];
+      const improvementText = gradeImproved
+        ? `<span class="compare-improvement" style="color:#00ff88">↑ Grade improved</span>`
+        : gradeWorsened
+        ? `<span class="compare-improvement" style="color:#ff4444">↓ Grade worsened</span>`
+        : `<span class="compare-improvement" style="color:#4a6080">→ Grade unchanged</span>`;
+
+      function buildCards(vulns, statusColor) {
+        if (!vulns.length) return `<div style="font-size:12px;color:#2a3a50;font-family:IBM Plex Mono,monospace;padding:8px 0">None</div>`;
+        return vulns.map((v, i) => {
+          const conf = v.confidence ?? 50;
+          const confColor = conf >= 90 ? '#ff4444' : conf >= 70 ? '#ff9900' : conf >= 50 ? '#ffee00' : '#4a6080';
+          const uid = `cmp-${statusColor}-${i}`;
+          return `
+          <div class="vuln-card" id="${uid}" style="border-left: 3px solid ${statusColor}">
+            <div class="vuln-card-header" onclick="toggleCardById('${uid}')">
+              <div class="sev-badge sev-${v.severity}">${v.severity}</div>
+              <div class="vuln-name">${v.name}</div>
+              <div class="vuln-type">${v.type}</div>
+              <div class="chevron">▶</div>
+            </div>
+            <div class="vuln-body">
+              <div class="vuln-section"><div class="vuln-section-label">Location</div><div class="vuln-line">${v.location}</div></div>
+              <div class="vuln-section"><div class="vuln-section-label">Description</div><div class="vuln-desc">${v.description}</div></div>
+              <div class="vuln-section"><div class="vuln-section-label">How to fix</div><div class="vuln-fix">${escHtml(v.fix)}</div></div>
+              <div class="confidence-wrap">
+                <div class="confidence-row">
+                  <div class="confidence-label">Confidence</div>
+                  <div class="confidence-bar-bg"><div class="confidence-bar-fill" style="width:${conf}%;background:${confColor}"></div></div>
+                  <div class="confidence-pct" style="color:${confColor}">${conf}%</div>
+                </div>
+                ${v.confidence_reason ? `<div class="confidence-note">${v.confidence_reason}</div>` : ''}
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+      el.innerHTML = `
+        <div class="results-header">
+          <div class="results-title">Compare results — ${beforeResult.language || 'code'}</div>
+          <button class="export-btn" onclick="window.print()">↓ export PDF</button>
+        </div>
+
+        <div class="compare-grade-row">
+          <div class="compare-grade-block">
+            <div class="compare-grade-label">Before</div>
+            <div class="compare-grade-val" style="color:${gradeColors[beforeGrade]}">${beforeGrade}</div>
+          </div>
+          <div class="compare-arrow">→</div>
+          <div class="compare-grade-block">
+            <div class="compare-grade-label">After</div>
+            <div class="compare-grade-val" style="color:${gradeColors[afterGrade]}">${afterGrade}</div>
+          </div>
+          ${improvementText}
+        </div>
+
+        <div class="compare-section">
+          <div class="compare-section-header fixed">
+            ✓ Fixed <span class="compare-section-count">${fixed.length} issue${fixed.length !== 1 ? 's' : ''} resolved</span>
+          </div>
+          <div class="vuln-list">${buildCards(fixed, '#00ff88')}</div>
+        </div>
+
+        <div class="compare-section">
+          <div class="compare-section-header new">
+            ✕ New <span class="compare-section-count">${newIssues.length} new issue${newIssues.length !== 1 ? 's' : ''} introduced</span>
+          </div>
+          <div class="vuln-list">${buildCards(newIssues, '#ff4444')}</div>
+        </div>
+
+        <div class="compare-section">
+          <div class="compare-section-header unchanged">
+            · Unchanged <span class="compare-section-count">${unchanged.length} issue${unchanged.length !== 1 ? 's' : ''} remaining</span>
+          </div>
+          <div class="vuln-list">${buildCards(unchanged, '#1e2733')}</div>
+        </div>`;
+    }
+
+    function toggleCardById(id) { const c = document.getElementById(id); if (c) c.classList.toggle('open'); }
     const FP_KEY = 'securescan_false_positives';
 
     function getDismissed() {
