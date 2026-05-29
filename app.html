@@ -10,7 +10,6 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'IBM Plex Sans', sans-serif; background: #0a0e14; color: #e0e6f0; min-height: 100vh; }
 
-    /* ── Scan overlay ── */
     .scan-overlay { position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
     .scan-overlay.active { opacity: 1; pointer-events: all; }
     .scan-overlay-bg { position: absolute; inset: 0; background: #0a0e14cc; }
@@ -27,7 +26,6 @@
     .scan-overlay-sub { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #4a6080; letter-spacing: 0.1em; text-transform: uppercase; margin-top: -8px; }
     .scan-overlay::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, #00d4ff04 2px, #00d4ff04 4px); pointer-events: none; }
 
-    /* ── Header ── */
     .header { display: flex; align-items: center; gap: 12px; padding: 16px 32px; border-bottom: 1px solid #1e2733; position: sticky; top: 0; background: #0a0e14; z-index: 10; }
     .logo-mark { width: 32px; height: 32px; background: #00d4ff; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .logo-mark svg { width: 18px; height: 18px; }
@@ -40,18 +38,15 @@
     .reset-key-btn { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #2a3a50; background: transparent; border: 1px solid #1e2733; border-radius: 5px; padding: 5px 10px; cursor: pointer; transition: all 0.15s; }
     .reset-key-btn:hover { color: #ff4444; border-color: #ff444440; }
 
-    /* ── Layout ── */
     .layout { display: grid; grid-template-columns: 1fr 270px; gap: 24px; max-width: 1100px; margin: 0 auto; padding: 24px 32px 60px; }
     .main-col { min-width: 0; }
     .side-col { min-width: 0; }
 
-    /* ── Tabs ── */
     .tabs { display: flex; border: 1px solid #1e2733; border-radius: 8px; overflow: hidden; margin-bottom: 14px; width: fit-content; }
     .tab { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 7px 20px; background: transparent; color: #4a6080; border: none; cursor: pointer; letter-spacing: 0.04em; transition: all 0.15s; }
     .tab.active { background: #00d4ff18; color: #00d4ff; }
     .tab:hover:not(.active) { color: #8099b8; }
 
-    /* ── Code editor ── */
     .code-wrap { border: 1px solid #1e2733; border-radius: 10px; overflow: hidden; background: #060a0f; margin-bottom: 14px; transition: border-color 0.15s; }
     .code-wrap:focus-within { border-color: #00d4ff40; }
     .code-header { display: flex; align-items: center; gap: 8px; padding: 9px 14px; background: #0d1520; border-bottom: 1px solid #1e2733; }
@@ -61,7 +56,6 @@
     #code-input { font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.75; width: 100%; min-height: 220px; background: transparent; color: #c9d8ec; border: none; padding: 16px 18px; resize: vertical; outline: none; }
     #code-input::placeholder { color: #2a3a50; }
 
-    /* ── Upload ── */
     .upload-zone { display: none; border: 1.5px dashed #1e2733; border-radius: 10px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: #060a0f; margin-bottom: 14px; }
     .upload-zone:hover, .upload-zone.drag { border-color: #00d4ff60; background: #00d4ff06; }
     .upload-zone.active { display: block; }
@@ -72,7 +66,6 @@
     #file-input { display: none; }
     .file-loaded { font-size: 12px; color: #00ff88; margin-top: 8px; font-family: 'IBM Plex Mono', monospace; }
 
-    /* ── Scan row ── */
     .scan-row { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
     .scan-btn { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; padding: 11px 28px; background: #00d4ff; color: #060a0f; border: none; border-radius: 7px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.15s; }
     .scan-btn:hover { background: #33ddff; transform: translateY(-1px); }
@@ -82,7 +75,6 @@
     .spinner { width: 14px; height: 14px; border: 2px solid rgba(6,8,11,0.3); border-top-color: #060a0f; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Results ── */
     .results { display: none; }
     .results-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #1e2733; }
     .results-title { font-size: 15px; font-weight: 600; color: #fff; }
@@ -126,7 +118,6 @@
     .clean-banner { display: flex; align-items: center; gap: 14px; padding: 18px 20px; background: #0d2a1a; border: 1px solid #00ff8830; border-radius: 9px; font-size: 14px; color: #00ff88; }
     .error-banner { padding: 14px 18px; background: #2a0a0a; border: 1px solid #ff444430; border-radius: 9px; font-size: 12px; color: #ff4444; font-family: 'IBM Plex Mono', monospace; line-height: 1.6; }
 
-    /* ── Sidebar history ── */
     .history-panel { position: sticky; top: 80px; }
     .history-title { font-size: 11px; font-family: 'IBM Plex Mono', monospace; color: #4a6080; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
     .history-clear { font-size: 10px; color: #2a3a50; background: transparent; border: none; cursor: pointer; font-family: 'IBM Plex Mono', monospace; padding: 0; transition: color 0.15s; }
@@ -143,121 +134,44 @@
     .history-chips { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
     .history-chip { font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 1px 6px; border-radius: 3px; }
 
-    /* ── False positive ── */
-    .dismiss-btn {
-      font-family: 'IBM Plex Mono', monospace; font-size: 10px;
-      color: #2a3a50; background: transparent;
-      border: 1px solid #1e2733; border-radius: 4px;
-      padding: 3px 8px; cursor: pointer;
-      transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
-    }
+    .dismiss-btn { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #2a3a50; background: transparent; border: 1px solid #1e2733; border-radius: 4px; padding: 3px 8px; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
     .dismiss-btn:hover { color: #ff4444; border-color: #ff444440; }
-    .vuln-card.dismissed {
-      opacity: 0.4;
-      border-color: #1e2733;
-    }
+    .vuln-card.dismissed { opacity: 0.4; border-color: #1e2733; }
     .vuln-card.dismissed .vuln-card-header { cursor: default; }
-    .dismissed-badge {
-      font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-      color: #2a3a50; padding: 2px 7px;
-      background: #0d1520; border: 1px solid #1e2733;
-      border-radius: 3px; letter-spacing: 0.05em;
-    }
-    .restore-btn {
-      font-family: 'IBM Plex Mono', monospace; font-size: 10px;
-      color: #2a3a50; background: transparent; border: none;
-      cursor: pointer; padding: 0; transition: color 0.15s;
-      text-decoration: underline;
-    }
+    .dismissed-badge { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: #2a3a50; padding: 2px 7px; background: #0d1520; border: 1px solid #1e2733; border-radius: 3px; letter-spacing: 0.05em; }
+    .restore-btn { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #2a3a50; background: transparent; border: none; cursor: pointer; padding: 0; transition: color 0.15s; text-decoration: underline; }
     .restore-btn:hover { color: #4a6080; }
-    .fp-summary {
-      font-size: 11px; color: #2a3a50;
-      font-family: 'IBM Plex Mono', monospace;
-      margin-top: 8px;
-    }
-    .fp-summary span { color: #4a6080; cursor: pointer; text-decoration: underline; }
-    .fp-summary span:hover { color: #8099b8; }
 
-    /* ── Compare tab ── */
     .compare-panel { display: none; margin-bottom: 14px; }
     .compare-panel.active { display: block; }
-    .compare-editors {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-      margin-bottom: 14px;
-    }
-    .compare-editor-label {
-      font-size: 10px; font-family: 'IBM Plex Mono', monospace;
-      color: #4a6080; text-transform: uppercase; letter-spacing: 0.08em;
-      margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
-    }
+    .compare-editors { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .compare-editor-label { font-size: 10px; font-family: 'IBM Plex Mono', monospace; color: #4a6080; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
     .compare-editor-label .before-dot { width: 7px; height: 7px; border-radius: 50%; background: #ff9900; flex-shrink: 0; }
     .compare-editor-label .after-dot  { width: 7px; height: 7px; border-radius: 50%; background: #00ff88; flex-shrink: 0; }
-    .compare-textarea {
-      font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.7;
-      width: 100%; min-height: 200px;
-      background: #060a0f; color: #c9d8ec;
-      border: 1px solid #1e2733; border-radius: 8px;
-      padding: 14px 16px; resize: vertical; outline: none;
-      transition: border-color 0.15s;
-    }
+    .compare-textarea { font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.7; width: 100%; min-height: 200px; background: #060a0f; color: #c9d8ec; border: 1px solid #1e2733; border-radius: 8px; padding: 14px 16px; resize: vertical; outline: none; transition: border-color 0.15s; }
     .compare-textarea:focus { border-color: #00d4ff40; }
     .compare-textarea::placeholder { color: #2a3a50; }
-
-    /* Compare results */
     .compare-section { margin-bottom: 20px; }
-    .compare-section-header {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 14px; border-radius: 7px; margin-bottom: 10px;
-      font-size: 12px; font-weight: 600;
-    }
+    .compare-section-header { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 7px; margin-bottom: 10px; font-size: 12px; font-weight: 600; }
     .compare-section-header.fixed   { background: #0d2a1a; color: #00ff88; border: 1px solid #00ff8830; }
     .compare-section-header.new     { background: #2a0a0a; color: #ff4444; border: 1px solid #ff444430; }
     .compare-section-header.unchanged { background: #0d1520; color: #4a6080; border: 1px solid #1e2733; }
-    .compare-section-count {
-      margin-left: auto; font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px; opacity: 0.7;
-    }
-    .compare-grade-row {
-      display: flex; align-items: center; gap: 16px;
-      padding: 14px 16px; background: #0d1520;
-      border: 1px solid #1e2733; border-radius: 9px;
-      margin-bottom: 16px;
-    }
+    .compare-section-count { margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 10px; opacity: 0.7; }
+    .compare-grade-row { display: flex; align-items: center; gap: 16px; padding: 14px 16px; background: #0d1520; border: 1px solid #1e2733; border-radius: 9px; margin-bottom: 16px; }
     .compare-grade-block { text-align: center; }
     .compare-grade-label { font-size: 10px; font-family: 'IBM Plex Mono', monospace; color: #2a3a50; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
     .compare-grade-val { font-size: 28px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
     .compare-arrow { font-size: 22px; color: #1e2733; flex: 1; text-align: center; }
     .compare-improvement { font-size: 12px; margin-left: auto; font-family: 'IBM Plex Mono', monospace; }
 
-    /* ── Confidence bar ── */
-    .confidence-wrap {
-      margin-top: 12px; padding-top: 12px;
-      border-top: 1px solid #1e2733;
-    }
-    .confidence-row {
-      display: flex; align-items: center; gap: 10px;
-    }
-    .confidence-label {
-      font-family: 'IBM Plex Mono', monospace; font-size: 10px;
-      color: #2a3a50; text-transform: uppercase; letter-spacing: 0.08em;
-      white-space: nowrap;
-    }
-    .confidence-bar-bg {
-      flex: 1; height: 4px; background: #1e2733; border-radius: 2px; overflow: hidden;
-    }
-    .confidence-bar-fill {
-      height: 100%; border-radius: 2px; transition: width 0.4s ease;
-    }
-    .confidence-pct {
-      font-family: 'IBM Plex Mono', monospace; font-size: 10px;
-      color: #4a6080; min-width: 32px; text-align: right;
-    }
-    .confidence-note {
-      font-size: 11px; color: #2a3a50; margin-top: 5px;
-      font-family: 'IBM Plex Mono', monospace; font-style: italic;
-    }
+    .confidence-wrap { margin-top: 12px; padding-top: 12px; border-top: 1px solid #1e2733; }
+    .confidence-row { display: flex; align-items: center; gap: 10px; }
+    .confidence-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #2a3a50; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+    .confidence-bar-bg { flex: 1; height: 4px; background: #1e2733; border-radius: 2px; overflow: hidden; }
+    .confidence-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+    .confidence-pct { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #4a6080; min-width: 32px; text-align: right; }
+    .confidence-note { font-size: 11px; color: #2a3a50; margin-top: 5px; font-family: 'IBM Plex Mono', monospace; font-style: italic; }
 
-    /* ── Print ── */
     @media print {
       body { background: #fff; color: #000; }
       .header, .tabs, .code-wrap, .upload-zone, .scan-row, .side-col, .export-btn { display: none !important; }
@@ -284,7 +198,6 @@
 </head>
 <body>
 
-  <!-- Scan overlay -->
   <div class="scan-overlay" id="scan-overlay">
     <div class="scan-overlay-bg"></div>
     <div class="scan-line-reflection"></div>
@@ -314,21 +227,19 @@
     </div>
     <div class="header-right">
       <div class="key-indicator"><div class="key-dot"></div><span id="provider-label">API key active</span></div>
-      <div class="badge">v0.2</div>
+      <div class="badge">v0.3</div>
       <button class="reset-key-btn" onclick="resetKey()">reset key</button>
     </div>
   </header>
 
   <div class="layout">
     <div class="main-col">
-
       <div class="tabs">
         <button class="tab active" id="tab-paste" onclick="switchTab('paste')">Paste code</button>
         <button class="tab" id="tab-upload" onclick="switchTab('upload')">Upload file</button>
         <button class="tab" id="tab-compare" onclick="switchTab('compare')">Compare</button>
       </div>
 
-      <!-- Compare panel -->
       <div class="compare-panel" id="compare-panel">
         <div class="compare-editors">
           <div>
@@ -399,15 +310,15 @@
   <script>
     const STORAGE_KEY = 'securescan_api_key';
     const PROVIDER_KEY = 'securescan_provider';
-    const HISTORY_KEY = 'securescan_history';
+    const HISTORY_KEY  = 'securescan_history';
 
-    const API_KEY = localStorage.getItem(STORAGE_KEY);
+    const API_KEY  = localStorage.getItem(STORAGE_KEY);
     const PROVIDER = localStorage.getItem(PROVIDER_KEY) || 'groq';
     if (!API_KEY) window.location.replace('index.html');
 
     const PROVIDER_CONFIG = {
-      groq: { url: 'https://api.groq.com/openai/v1/chat/completions', model: 'llama-3.3-70b-versatile', label: 'Groq' },
-      cerebras: { url: 'https://api.cerebras.ai/v1/chat/completions', model: 'gpt-oss-120b', label: 'Cerebras' }
+      groq:     { url: 'https://api.groq.com/openai/v1/chat/completions',   model: 'llama-3.3-70b-versatile', label: 'Groq' },
+      cerebras: { url: 'https://api.cerebras.ai/v1/chat/completions',        model: 'gpt-oss-120b',            label: 'Cerebras' }
     };
     const providerCfg = PROVIDER_CONFIG[PROVIDER] || PROVIDER_CONFIG.groq;
 
@@ -425,7 +336,7 @@
       window.location.replace('index.html');
     }
 
-    let currentTab = 'paste';
+    let currentTab   = 'paste';
     let uploadedCode = '';
     let currentResult = null;
 
@@ -445,8 +356,7 @@
     switchTab('paste');
 
     function handleFile(input) {
-      const file = input.files[0];
-      if (!file) return;
+      const file = input.files[0]; if (!file) return;
       const reader = new FileReader();
       reader.onload = e => { uploadedCode = e.target.result; document.getElementById('file-loaded').textContent = '✓ ' + file.name + ' loaded'; };
       reader.readAsText(file);
@@ -454,8 +364,7 @@
     function handleDrop(e) {
       e.preventDefault();
       document.getElementById('upload-panel').classList.remove('drag');
-      const file = e.dataTransfer.files[0];
-      if (!file) return;
+      const file = e.dataTransfer.files[0]; if (!file) return;
       const reader = new FileReader();
       reader.onload = ev => { uploadedCode = ev.target.result; document.getElementById('file-loaded').textContent = '✓ ' + file.name + ' loaded'; };
       reader.readAsText(file);
@@ -476,23 +385,9 @@
       return 'B';
     }
 
-    async function runScan() {
-      if (currentTab === 'compare') { await runCompare(); return; }
-      const code = getCode();
-      if (!code) { showError('No code to scan. Paste some code or upload a file first.'); return; }
-      if (code.length > 30000) { showError('Code too large (max ~30,000 chars). Try a smaller snippet.'); return; }
+    // ── Shared system prompt (used by both scan and compare) ──────────────────
+    const SYSTEM_PROMPT = `You are an expert security code reviewer with deep knowledge of the OWASP Top 10 and common vulnerability patterns across all languages.
 
-      const btn = document.getElementById('scan-btn');
-      const spinner = document.getElementById('spinner');
-      const label = document.getElementById('scan-label');
-      const overlay = document.getElementById('scan-overlay');
-      btn.disabled = true; spinner.style.display = 'block'; label.textContent = 'Scanning...';
-      overlay.classList.add('active');
-      document.getElementById('results').style.display = 'none';
-
-      const langHint = getLang() ? `The language is ${getLang()}.` : 'Auto-detect the language.';
-
-      const systemPrompt = `You are a professional security code reviewer. Analyze code for security vulnerabilities.
 Always respond with ONLY a valid JSON object — no markdown, no explanation, no code fences.
 Use this exact structure:
 {
@@ -504,23 +399,100 @@ Use this exact structure:
       "name": "short vulnerability name",
       "severity": "CRITICAL|HIGH|MEDIUM|LOW",
       "type": "e.g. SQL Injection, XSS, Hardcoded Secret",
-      "description": "clear explanation of the vulnerability and why it is dangerous",
+      "description": "clear explanation of the vulnerability and why it is dangerous, written for a developer who is not a security expert",
       "location": "line number or function name, or General",
-      "fix": "concrete code fix or remediation advice",
+      "fix": "concrete code example showing exactly how to fix this — use the actual variable/function names from the code",
       "confidence": 85,
       "confidence_reason": "one short sentence explaining why you are or aren't certain"
     }
   ]
 }
-Confidence is an integer 0-100 representing how certain you are this is a real, exploitable vulnerability:
+
+CONFIDENCE SCALE (integer 0-100):
 - 90-100: Definite vulnerability, clearly visible in the code
 - 70-89: Very likely, minor ambiguity about exploitability
 - 50-69: Possible, depends on context not visible in this snippet
 - Below 50: Speculative, flagging out of caution
 
-Severity: CRITICAL=immediate exploitation, HIGH=serious risk, MEDIUM=moderate risk, LOW=best practice issue.
-Return an empty array for vulnerabilities if the code is clean.
-Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backend as vulnerabilities.`;
+SEVERITY SCALE:
+- CRITICAL: Can be exploited immediately with no prerequisites (e.g. SQLi with string concat, RCE, hardcoded prod credentials)
+- HIGH: Serious risk requiring minimal effort to exploit (e.g. broken auth, IDOR, command injection)
+- MEDIUM: Meaningful risk but requires specific conditions (e.g. XSS, weak crypto in sensitive context, CSRF)
+- LOW: Best practice violation or low-impact issue (e.g. verbose error messages, missing security headers, weak but non-sensitive hashing)
+
+MANDATORY CHECKLIST — always check for ALL of the following, regardless of language:
+
+INJECTION ATTACKS:
+- SQL Injection: string concatenation or formatting in queries — flag any query built with + or f-strings or % or format() instead of parameterized queries/prepared statements
+- Command Injection: os.system, exec, eval, subprocess with unsanitized input, shell=True
+- LDAP/XPath/NoSQL Injection: unsanitized input passed to query methods
+- Template Injection: user input passed directly into template engines
+
+AUTHENTICATION & SESSION:
+- Hardcoded credentials: any literal password, secret key, API key, token, or private key in source code — flag even if it looks like a placeholder
+- Weak or missing authentication: unprotected endpoints, missing auth checks
+- Insecure session management: predictable tokens, long-lived sessions, missing expiry
+- JWT issues: algorithm confusion (accepting 'none'), weak secrets, missing validation
+
+CRYPTOGRAPHY:
+- Weak hashing algorithms: MD5 or SHA1 used for passwords or security-sensitive data — always flag these
+- Weak encryption: DES, RC4, ECB mode, hardcoded IVs or keys
+- Insecure randomness: using Math.random() or random.random() for security-sensitive values instead of cryptographically secure alternatives
+- Missing TLS/SSL verification: verify=False, InsecureRequestWarning suppressed
+
+INPUT HANDLING:
+- XSS (Cross-Site Scripting): unsanitized user input rendered in HTML, innerHTML assignments, document.write
+- Path Traversal: user-controlled file paths without sanitization (e.g. open(user_input), readFile(req.params.id))
+- Open Redirect: redirecting to user-supplied URLs without validation
+- XXE: XML parsing with external entity processing enabled
+
+ACCESS CONTROL:
+- IDOR (Insecure Direct Object Reference): accessing resources by user-supplied ID without ownership verification
+- Missing authorization checks: performing actions based on user input without verifying the user has permission
+- Privilege escalation: logic that allows users to gain elevated access
+
+SENSITIVE DATA:
+- Exposed sensitive data in logs: logging passwords, tokens, PII, credit card numbers
+- Sensitive data in error messages: stack traces or internal details returned to users
+- Insecure storage: sensitive data written to files or DB without encryption
+
+DANGEROUS FUNCTIONS:
+- eval() in any language — always flag
+- exec() with user input
+- pickle.loads() / unserialize() with untrusted data (deserialization attacks)
+- Any use of __import__ or importlib with user-controlled input
+
+CONFIGURATION:
+- Debug mode enabled in production indicators (DEBUG=True, app.run(debug=True))
+- Overly permissive CORS: Access-Control-Allow-Origin: *
+- Missing rate limiting on sensitive endpoints (login, password reset, etc.)
+- Insecure cookie flags: missing HttpOnly, Secure, or SameSite
+
+DO NOT FLAG:
+- localStorage usage for non-sensitive data
+- Hardcoded localhost or 127.0.0.1 URLs
+- Absence of a backend or server
+- Console.log statements (unless logging sensitive data)
+- Missing features that aren't security vulnerabilities
+
+Return an empty vulnerabilities array only if the code is genuinely clean after checking all categories above.`;
+
+    // ── Regular scan ──────────────────────────────────────────────────────────
+    async function runScan() {
+      if (currentTab === 'compare') { await runCompare(); return; }
+      const code = getCode();
+      if (!code) { showError('No code to scan. Paste some code or upload a file first.'); return; }
+      if (code.length > 100000) { showError('Code too large (max ~100,000 chars). Try a smaller snippet.'); return; }
+
+      const btn = document.getElementById('scan-btn');
+      const spinner = document.getElementById('spinner');
+      const label = document.getElementById('scan-label');
+      const overlay = document.getElementById('scan-overlay');
+      btn.disabled = true; spinner.style.display = 'block'; label.textContent = 'Scanning...';
+      overlay.classList.add('active');
+      document.getElementById('results').style.display = 'none';
+
+      const langHint = getLang() ? `The language is ${getLang()}.` : 'Auto-detect the language.';
 
       try {
         const res = await fetch(providerCfg.url, {
@@ -529,17 +501,26 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
           body: JSON.stringify({
             model: providerCfg.model,
             temperature: 0.1,
-            ...(PROVIDER === 'cerebras' ? { max_completion_tokens: 1500 } : { max_tokens: 1500 }),
+            ...(PROVIDER === 'cerebras' ? { max_completion_tokens: 2000 } : { max_tokens: 2000 }),
             messages: [
-              { role: 'system', content: systemPrompt },
+              { role: 'system', content: SYSTEM_PROMPT },
               { role: 'user', content: `${langHint}\n\nCode to review:\n${code}` }
             ]
           })
         });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
-          if (res.status === 401) { if (confirm('Your API key was rejected. Reset it?')) resetKey(); return; }
-          throw new Error(`${providerCfg.label} API error ${res.status}: ${err?.error?.message || res.statusText}`);
+          const apiMsg = err?.error?.message || '';
+          if (res.status === 401) {
+            if (confirm(`API key rejected by ${providerCfg.label}. Your key may be invalid or expired.\n\nReset it and return to setup?`)) resetKey();
+            return;
+          }
+          if (res.status === 429) throw new Error(`Rate limit reached on ${providerCfg.label}. You've sent too many requests too quickly — wait 30–60 seconds and try again, or reset your key to switch providers.`);
+          if (res.status === 400) throw new Error(`Bad request sent to ${providerCfg.label}. Your code may contain characters that couldn't be processed. Try a smaller snippet.${apiMsg ? ' Detail: ' + apiMsg : ''}`);
+          if (res.status === 413) throw new Error(`Code too large for ${providerCfg.label} to process. Try pasting a smaller section of your code.`);
+          if (res.status === 500) throw new Error(`${providerCfg.label} is having server issues right now. Wait a moment and try again.`);
+          if (res.status === 503) throw new Error(`${providerCfg.label} is temporarily unavailable or overloaded. Try again in a minute.`);
+          throw new Error(`${providerCfg.label} returned an unexpected error (${res.status}).${apiMsg ? ' Detail: ' + apiMsg : ' Try again or switch providers.'}`);
         }
         const data = await res.json();
         const rawText = data.choices[0].message.content || '';
@@ -551,7 +532,8 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
         saveToHistory(result);
         renderResults(result);
       } catch (err) {
-        showError(`Scan failed: ${err.message}`);
+        const msg = err.message || 'Unknown error occurred.';
+        showError(msg);
       } finally {
         btn.disabled = false; spinner.style.display = 'none'; label.textContent = 'Scan code';
         document.getElementById('scan-overlay').classList.remove('active');
@@ -584,11 +566,9 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
       const chips = Object.entries(counts).filter(([,n]) => n > 0)
         .map(([sev, n]) => `<div class="chip chip-${sev.toLowerCase()}">${n} ${sev}</div>`).join('');
 
-      // Sort by confidence descending (high confidence first), fallback to severity
       const sevOrder = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
       const sorted = [...result.vulnerabilities].sort((a, b) => {
-        const ca = a.confidence ?? 50;
-        const cb = b.confidence ?? 50;
+        const ca = a.confidence ?? 50, cb = b.confidence ?? 50;
         if (cb !== ca) return cb - ca;
         return (sevOrder[b.severity] || 0) - (sevOrder[a.severity] || 0);
       });
@@ -618,15 +598,14 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
             <div class="confidence-wrap">
               <div class="confidence-row">
                 <div class="confidence-label">Confidence</div>
-                <div class="confidence-bar-bg">
-                  <div class="confidence-bar-fill" style="width:${conf}%;background:${confColor}"></div>
-                </div>
+                <div class="confidence-bar-bg"><div class="confidence-bar-fill" style="width:${conf}%;background:${confColor}"></div></div>
                 <div class="confidence-pct" style="color:${confColor}">${conf}%</div>
               </div>
               ${v.confidence_reason ? `<div class="confidence-note">${v.confidence_reason}</div>` : ''}
             </div>
           </div>`}
-        </div>`; }).join('');
+        </div>`;
+      }).join('');
 
       const activeVulns = sorted.filter(v => !dismissedIds.has(v.id || v.name));
       const dismissedCount = sorted.length - activeVulns.length;
@@ -651,10 +630,10 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
       toggleCard(0);
     }
 
-    // ── Compare ──
+    // ── Compare ───────────────────────────────────────────────────────────────
     async function runCompare() {
       const before = document.getElementById('compare-before').value.trim();
-      const after = document.getElementById('compare-after').value.trim();
+      const after  = document.getElementById('compare-after').value.trim();
       if (!before || !after) { showError('Paste code in both editors to compare.'); return; }
 
       const btn = document.getElementById('scan-btn');
@@ -665,30 +644,6 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
       overlay.classList.add('active');
       document.getElementById('results').style.display = 'none';
 
-      const systemPrompt = `You are a professional security code reviewer. Analyze code for security vulnerabilities.
-Always respond with ONLY a valid JSON object — no markdown, no explanation, no code fences.
-Use this exact structure:
-{
-  "language": "detected language",
-  "summary": "one sentence overall assessment",
-  "vulnerabilities": [
-    {
-      "id": "VULN-001",
-      "name": "short vulnerability name",
-      "severity": "CRITICAL|HIGH|MEDIUM|LOW",
-      "type": "e.g. SQL Injection, XSS, Hardcoded Secret",
-      "description": "clear explanation of the vulnerability and why it is dangerous",
-      "location": "line number or function name, or General",
-      "fix": "concrete code fix or remediation advice",
-      "confidence": 85,
-      "confidence_reason": "one short sentence explaining why you are or aren't certain"
-    }
-  ]
-}
-Severity: CRITICAL=immediate exploitation, HIGH=serious risk, MEDIUM=moderate risk, LOW=best practice issue.
-Return an empty array for vulnerabilities if the code is clean.
-Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backend as vulnerabilities.`;
-
       async function scanCode(code, versionLabel) {
         const res = await fetch(providerCfg.url, {
           method: 'POST',
@@ -696,28 +651,37 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
           body: JSON.stringify({
             model: providerCfg.model,
             temperature: 0.1,
-            ...(PROVIDER === 'cerebras' ? { max_completion_tokens: 1500 } : { max_tokens: 1500 }),
+            ...(PROVIDER === 'cerebras' ? { max_completion_tokens: 2000 } : { max_tokens: 2000 }),
             messages: [
-              { role: 'system', content: systemPrompt },
+              { role: 'system', content: SYSTEM_PROMPT },
               { role: 'user', content: `${versionLabel}\n\n${code}` }
             ]
           })
         });
-        if (!res.ok) throw new Error(`API error ${res.status}`);
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          const apiMsg = err?.error?.message || '';
+          if (res.status === 401) throw new Error(`API key rejected by ${providerCfg.label}. Reset your key on the setup page.`);
+          if (res.status === 429) throw new Error(`Rate limit reached on ${providerCfg.label}. Wait 30–60 seconds and try again, or switch providers.`);
+          if (res.status === 400) throw new Error(`Bad request (400). Try a smaller or simpler code snippet.${apiMsg ? ' Detail: ' + apiMsg : ''}`);
+          if (res.status === 500) throw new Error(`${providerCfg.label} server error. Wait a moment and try again.`);
+          if (res.status === 503) throw new Error(`${providerCfg.label} is temporarily unavailable. Try again in a minute.`);
+          throw new Error(`API error ${res.status}${apiMsg ? ': ' + apiMsg : '. Try again or switch providers.'}`);
+        }
         const data = await res.json();
         const raw = data.choices[0].message.content || '';
-        const result = JSON.parse(raw.replace(/```json|```/g, '').trim());
-        return result;
+        return JSON.parse(raw.replace(/```json|```/g, '').trim());
       }
 
       try {
-        document.getElementById('scan-overlay-text') && (document.querySelector('.scan-overlay-text').textContent = 'Scanning before...');
+        document.querySelector('.scan-overlay-text').textContent = 'Scanning before...';
         const beforeResult = await scanCode(before, 'Scan the BEFORE version:');
         document.querySelector('.scan-overlay-text').textContent = 'Scanning after...';
         const afterResult = await scanCode(after, 'Scan the AFTER version:');
         renderCompareResults(beforeResult, afterResult);
       } catch(err) {
-        showError(`Compare failed: ${err.message}`);
+        const msg = err.message || 'Unknown error occurred.';
+        showError(msg);
       } finally {
         btn.disabled = false; spinner.style.display = 'none'; label.textContent = 'Compare scans';
         overlay.classList.remove('active');
@@ -732,19 +696,18 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
       el.style.display = 'block';
 
       const beforeVulns = beforeResult.vulnerabilities || [];
-      const afterVulns = afterResult.vulnerabilities || [];
-
-      const beforeKeys = new Map(beforeVulns.map(v => [matchKey(v), v]));
-      const afterKeys = new Map(afterVulns.map(v => [matchKey(v), v]));
+      const afterVulns  = afterResult.vulnerabilities  || [];
+      const beforeKeys  = new Map(beforeVulns.map(v => [matchKey(v), v]));
+      const afterKeys   = new Map(afterVulns.map(v => [matchKey(v), v]));
 
       const fixed     = beforeVulns.filter(v => !afterKeys.has(matchKey(v)));
       const newIssues = afterVulns.filter(v => !beforeKeys.has(matchKey(v)));
-      const unchanged = afterVulns.filter(v => beforeKeys.has(matchKey(v)));
+      const unchanged = afterVulns.filter(v =>  beforeKeys.has(matchKey(v)));
 
       const beforeGrade = calcGrade(beforeVulns);
       const afterGrade  = calcGrade(afterVulns);
       const gradeColors = { A: '#00ff88', B: '#44dd88', C: '#ffee00', D: '#ff9900', F: '#ff4444' };
-      const sevOrder = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
+      const sevOrder    = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
 
       const gradeImproved = sevOrder[afterGrade] > sevOrder[beforeGrade];
       const gradeWorsened = sevOrder[afterGrade] < sevOrder[beforeGrade];
@@ -759,7 +722,7 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
         return vulns.map((v, i) => {
           const conf = v.confidence ?? 50;
           const confColor = conf >= 90 ? '#ff4444' : conf >= 70 ? '#ff9900' : conf >= 50 ? '#ffee00' : '#4a6080';
-          const uid = `cmp-${statusColor}-${i}`;
+          const uid = `cmp-${statusColor.replace('#','')}-${i}`;
           return `
           <div class="vuln-card" id="${uid}" style="border-left: 3px solid ${statusColor}">
             <div class="vuln-card-header" onclick="toggleCardById('${uid}')">
@@ -790,7 +753,6 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
           <div class="results-title">Compare results — ${beforeResult.language || 'code'}</div>
           <button class="export-btn" onclick="window.print()">↓ export PDF</button>
         </div>
-
         <div class="compare-grade-row">
           <div class="compare-grade-block">
             <div class="compare-grade-label">Before</div>
@@ -803,67 +765,34 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
           </div>
           ${improvementText}
         </div>
-
         <div class="compare-section">
-          <div class="compare-section-header fixed">
-            ✓ Fixed <span class="compare-section-count">${fixed.length} issue${fixed.length !== 1 ? 's' : ''} resolved</span>
-          </div>
+          <div class="compare-section-header fixed">✓ Fixed <span class="compare-section-count">${fixed.length} issue${fixed.length !== 1 ? 's' : ''} resolved</span></div>
           <div class="vuln-list">${buildCards(fixed, '#00ff88')}</div>
         </div>
-
         <div class="compare-section">
-          <div class="compare-section-header new">
-            ✕ New <span class="compare-section-count">${newIssues.length} new issue${newIssues.length !== 1 ? 's' : ''} introduced</span>
-          </div>
+          <div class="compare-section-header new">✕ New <span class="compare-section-count">${newIssues.length} new issue${newIssues.length !== 1 ? 's' : ''} introduced</span></div>
           <div class="vuln-list">${buildCards(newIssues, '#ff4444')}</div>
         </div>
-
         <div class="compare-section">
-          <div class="compare-section-header unchanged">
-            · Unchanged <span class="compare-section-count">${unchanged.length} issue${unchanged.length !== 1 ? 's' : ''} remaining</span>
-          </div>
+          <div class="compare-section-header unchanged">· Unchanged <span class="compare-section-count">${unchanged.length} issue${unchanged.length !== 1 ? 's' : ''} remaining</span></div>
           <div class="vuln-list">${buildCards(unchanged, '#1e2733')}</div>
         </div>`;
     }
 
     function toggleCardById(id) { const c = document.getElementById(id); if (c) c.classList.toggle('open'); }
+
     const FP_KEY = 'securescan_false_positives';
-
-    function getDismissed() {
-      try { return new Set(JSON.parse(localStorage.getItem(FP_KEY)) || []); }
-      catch { return new Set(); }
-    }
-
-    function saveDismissed(set) {
-      localStorage.setItem(FP_KEY, JSON.stringify([...set]));
-    }
-
-    function dismissFinding(id, cardIndex) {
-      const dismissed = getDismissed();
-      dismissed.add(id);
-      saveDismissed(dismissed);
-      // Re-render results with updated dismissed set
-      if (currentResult) renderResults(currentResult);
-    }
-
-    function restoreFinding(id, cardIndex) {
-      const dismissed = getDismissed();
-      dismissed.delete(id);
-      saveDismissed(dismissed);
-      if (currentResult) renderResults(currentResult);
-    }
-
-    function clearDismissed() {
-      localStorage.removeItem(FP_KEY);
-      if (currentResult) renderResults(currentResult);
-    }
-
+    function getDismissed() { try { return new Set(JSON.parse(localStorage.getItem(FP_KEY)) || []); } catch { return new Set(); } }
+    function saveDismissed(set) { localStorage.setItem(FP_KEY, JSON.stringify([...set])); }
+    function dismissFinding(id) { const d = getDismissed(); d.add(id); saveDismissed(d); if (currentResult) renderResults(currentResult); }
+    function restoreFinding(id) { const d = getDismissed(); d.delete(id); saveDismissed(d); if (currentResult) renderResults(currentResult); }
+    function clearDismissed() { localStorage.removeItem(FP_KEY); if (currentResult) renderResults(currentResult); }
     function toggleCard(i) { const c = document.getElementById('vc-' + i); if (c) c.classList.toggle('open'); }
 
     function showError(msg) {
       const el = document.getElementById('results');
       el.style.display = 'block';
-      el.innerHTML = `<div class="error-banner">⚠ ${msg}</div>`;
+      el.innerHTML = `<div class="error-banner"><span style="font-size:14px;margin-right:8px">⚠</span>${msg}</div>`;
     }
 
     function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -877,9 +806,9 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
         summary: result.summary, vulnCount: result.vulnerabilities?.length || 0,
         counts: {
           CRITICAL: result.vulnerabilities?.filter(v => v.severity === 'CRITICAL').length || 0,
-          HIGH: result.vulnerabilities?.filter(v => v.severity === 'HIGH').length || 0,
-          MEDIUM: result.vulnerabilities?.filter(v => v.severity === 'MEDIUM').length || 0,
-          LOW: result.vulnerabilities?.filter(v => v.severity === 'LOW').length || 0,
+          HIGH:     result.vulnerabilities?.filter(v => v.severity === 'HIGH').length     || 0,
+          MEDIUM:   result.vulnerabilities?.filter(v => v.severity === 'MEDIUM').length   || 0,
+          LOW:      result.vulnerabilities?.filter(v => v.severity === 'LOW').length      || 0,
         },
         scannedAt: result.scannedAt, result
       });
@@ -896,8 +825,8 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
       const gradeColors = { A: '#00ff88', B: '#44dd88', C: '#ffee00', D: '#ff9900', F: '#ff4444' };
       el.innerHTML = `<div class="history-list">${history.map((item, i) => {
         const color = gradeColors[item.grade] || '#00ff88';
-        const time = new Date(item.scannedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const date = new Date(item.scannedAt).toLocaleDateString([], { month: 'short', day: 'numeric' });
+        const time  = new Date(item.scannedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const date  = new Date(item.scannedAt).toLocaleDateString([], { month: 'short', day: 'numeric' });
         const chips = Object.entries(item.counts || {}).filter(([,n]) => n > 0)
           .map(([sev, n]) => `<span class="history-chip chip-${sev.toLowerCase()}">${n} ${sev[0]}</span>`).join('');
         return `<div class="history-item" onclick="restoreResult(${i})">
