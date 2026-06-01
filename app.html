@@ -262,9 +262,6 @@
       position: fixed; inset: 0; z-index: 8000;
       pointer-events: none;
     }
-    .tour-backdrop.active { pointer-events: all; }
-
-    /* Dark mask with spotlight cutout */
     .tour-mask {
       position: fixed; inset: 0;
       background: rgba(6, 10, 15, 0.82);
@@ -289,6 +286,7 @@
       padding: 20px 22px;
       width: 300px;
       z-index: 8002;
+      pointer-events: all;
       box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px #00d4ff20;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       animation: tourCardIn 0.3s ease both;
@@ -343,12 +341,12 @@
     }
     .tour-skip-btn:hover { color: #4a6080; }
 
-    /* Tour welcome screen */
     .tour-welcome {
       position: fixed; inset: 0; z-index: 8100;
-      background: #0a0e14;
+      background: rgba(10, 14, 20, 0.92);
       display: flex; align-items: center; justify-content: center;
       animation: fadeIn 0.3s ease both;
+      pointer-events: all;
     }
     .tour-welcome-card {
       background: #060a0f; border: 1px solid #1e2733;
