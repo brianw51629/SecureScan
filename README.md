@@ -36,6 +36,7 @@ SecureScan analyzes code for common security vulnerabilities using AI (Groq or C
 - **Actionable fixes** — concrete remediation advice for each finding
 - **Scan history** — last 20 scans saved locally in your browser
 - **PDF export** — print any report to PDF with one click
+- **Guided tour** — an interactive walkthrough highlights every feature on your first visit; replay anytime from the header
 - **Multi-provider** — works with Groq (Llama 3.3 70B) or Cerebras (GPT-OSS 120B)
 - **Multi-language** — Python, JavaScript, Java, C/C++, SQL, Bash, Go, PHP, Ruby
 - **Zero dependencies** — no npm, no server, no build step
@@ -46,7 +47,7 @@ SecureScan analyzes code for common security vulnerabilities using AI (Groq or C
 
 ### Option 1 — Use the live version (easiest)
 
-Go to **[brianw51629.github.io/SecureScan](https://brianw51629.github.io/SecureScan)**, enter your free API key, and start scanning. Your key is saved in your browser — you only enter it once.
+Go to **[brianw51629.github.io/SecureScan](https://brianw51629.github.io/SecureScan)**, enter your free API key, and start scanning. On your first visit a guided tour will walk you through every feature — or skip it and jump straight in. Your key is saved in your browser and you only enter it once.
 
 ### Option 2 — Run locally
 
@@ -96,7 +97,13 @@ def read_file(filename):
     return open("/uploads/" + filename).read()
 ```
 
-SecureScan will flag SQL injection, hardcoded secret, weak hashing, command injection, and path traversal — each with a confidence score showing how certain the AI is about each finding.
+SecureScan will flag SQL injection, hardcoded secret, weak hashing, command injection, and path traversal — each with a confidence score and sorted by certainty.
+
+---
+
+## How the tour works
+
+On your first visit, a welcome screen appears over the app offering to take you on a guided tour. The tour uses a spotlight overlay to highlight each part of the UI one at a time — paste/upload, scanning, confidence scores, false positives, compare mode, and scan history — with a card explaining each feature. You can go back, skip at any step, or replay the tour anytime using the **tour** button in the top right corner.
 
 ---
 
@@ -116,13 +123,13 @@ Grades recalculate in real time as you dismiss false positives.
 
 ## Tech stack
 
-| Layer    | Technology                                      |
-| -------- | ----------------------------------------------- |
-| Frontend | Vanilla HTML, CSS, JavaScript                   |
+| Layer    | Technology                                       |
+| -------- | ------------------------------------------------ |
+| Frontend | Vanilla HTML, CSS, JavaScript                    |
 | AI Model | Llama 3.3 70B (Groq) or GPT-OSS 120B (Cerebras) |
-| Hosting  | GitHub Pages                                    |
-| Storage  | Browser localStorage                            |
-| Fonts    | IBM Plex Sans + IBM Plex Mono                   |
+| Hosting  | GitHub Pages                                     |
+| Storage  | Browser localStorage                             |
+| Fonts    | IBM Plex Sans + IBM Plex Mono                    |
 
 ---
 
@@ -131,6 +138,7 @@ Grades recalculate in real time as you dismiss false positives.
 - [x] Confidence scores per finding
 - [x] False positive dismissal
 - [x] Before/after compare mode
+- [x] Guided onboarding tour
 - [ ] Custom rules — always flag specific patterns
 - [ ] VS Code extension
 - [ ] GitHub repo URL scanning
