@@ -257,6 +257,31 @@
       font-family: 'IBM Plex Mono', monospace; font-style: italic;
     }
 
+    /* ── CTF Mode toggle ── */
+    .ctf-toggle-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px; padding: 10px 14px;
+      border: 1px solid #1e2733; border-radius: 8px;
+      background: #060a0f; transition: border-color 0.2s, background 0.2s;
+    }
+    .ctf-toggle-row.ctf-active { border-color: #ff440040; background: #1a060a; }
+    .ctf-toggle-label {
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
+      color: #4a6080; text-transform: uppercase; letter-spacing: 0.08em;
+      transition: color 0.2s;
+    }
+    .ctf-toggle-row.ctf-active .ctf-toggle-label { color: #ff4444; }
+    .ctf-toggle-desc { font-size: 11px; color: #2a3a50; font-family: 'IBM Plex Mono', monospace; margin-left: 4px; transition: color 0.2s; }
+    .ctf-toggle-row.ctf-active .ctf-toggle-desc { color: #4a1a1a; }
+    .toggle-switch { position: relative; width: 36px; height: 20px; flex-shrink: 0; margin-left: auto; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: #1e2733; border-radius: 20px; cursor: pointer; transition: background 0.2s; }
+    .toggle-slider::before { content: ''; position: absolute; width: 14px; height: 14px; left: 3px; top: 3px; background: #4a6080; border-radius: 50%; transition: transform 0.2s, background 0.2s; }
+    .toggle-switch input:checked + .toggle-slider { background: #ff444430; border: 1px solid #ff444460; }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(16px); background: #ff4444; }
+    .scan-btn.ctf { background: #ff4444; }
+    .scan-btn.ctf:hover { background: #ff6666; }
+
     /* ── Tour overlay ── */
     .tour-backdrop {
       position: fixed; inset: 0; z-index: 8000;
@@ -526,6 +551,17 @@
         <input type="file" id="file-input" accept=".py,.js,.ts,.java,.c,.cpp,.go,.php,.rb,.sh,.sql,.txt" onchange="handleFile(this)" />
       </div>
 
+      <div class="ctf-toggle-row" id="ctf-toggle-row">
+        <div>
+          <span class="ctf-toggle-label">⚑ CTF Mode</span>
+          <span class="ctf-toggle-desc">— aggressive, finds anything exploitable</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="ctf-toggle" onchange="toggleCTF()" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
       <div class="scan-row">
         <button class="scan-btn" id="scan-btn" onclick="runScan()">
           <span class="spinner" id="spinner"></span>
@@ -580,6 +616,15 @@
     let currentTab = 'paste';
     let uploadedCode = '';
     let currentResult = null;
+    let ctfMode = false;
+
+    function toggleCTF() {
+      ctfMode = document.getElementById('ctf-toggle').checked;
+      document.getElementById('ctf-toggle-row').classList.toggle('ctf-active', ctfMode);
+      const btn = document.getElementById('scan-btn');
+      btn.classList.toggle('ctf', ctfMode);
+      document.getElementById('scan-label').textContent = ctfMode ? 'CTF Scan' : 'Scan code';
+    }
 
     function switchTab(tab) {
       currentTab = tab;
@@ -644,8 +689,8 @@
 
       const langHint = getLang() ? `The language is ${getLang()}.` : 'Auto-detect the language.';
 
-      const systemPrompt = `You are a professional security code reviewer. Analyze code for security vulnerabilities.
-      Don't give advice on code style, best practices, or performance — only security issues. Focus on critical vulnerabilities that can lead to data breaches, remote code execution, privilege escalation, or significant security risks.
+      const standardPrompt = `You are a professional security code reviewer. Analyze code for security vulnerabilities.
+Don't give advice on code style, best practices, or performance — only security issues. Focus on critical vulnerabilities that can lead to data breaches, remote code execution, privilege escalation, or significant security risks.
 Always respond with ONLY a valid JSON object — no markdown, no explanation, no code fences.
 Use this exact structure:
 {
@@ -675,13 +720,49 @@ Severity: CRITICAL=immediate exploitation, HIGH=serious risk, MEDIUM=moderate ri
 Return an empty array for vulnerabilities if the code is clean.
 Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backend as vulnerabilities.`;
 
+      const ctfPrompt = `You are an expert CTF security analyst. Your job is to find EVERY exploitable vulnerability in this code — assume it was written to be vulnerable.
+
+Always respond with ONLY a valid JSON object — no markdown, no explanation, no code fences.
+Use this exact structure:
+{
+  "language": "detected language",
+  "summary": "one sentence CTF assessment",
+  "vulnerabilities": [
+    {
+      "id": "VULN-001",
+      "name": "short vulnerability name",
+      "severity": "CRITICAL|HIGH|MEDIUM|LOW",
+      "type": "vulnerability type",
+      "description": "explain the vulnerability and exactly how an attacker would exploit it in a CTF",
+      "location": "line number or function name",
+      "fix": "EXPLOIT: <example payload or attack vector> | FIX: <how to patch it>",
+      "confidence": 85,
+      "confidence_reason": "one short sentence explaining certainty"
+    }
+  ]
+}
+
+Confidence guide:
+- 90-100: Clearly exploitable, visible in the code
+- 70-89: Very likely exploitable with minor assumptions
+- 50-69: Possibly exploitable depending on context
+- Below 50: Speculative but worth investigating in a CTF
+
+Look aggressively for: SQL injection (all variants including blind/time-based/second-order), XSS, command injection, path traversal, hardcoded credentials or flags, insecure deserialization, type juggling, logic flaws, authentication bypasses, weak crypto (MD5/SHA1/ECB/predictable seeds), race conditions, SSRF, XXE, format string bugs, buffer overflows, and anything that looks deliberately weakened.
+
+NEVER return an empty vulnerabilities array — if code exists, find something suspicious.
+In CTF context, low-confidence speculative findings are still valuable — include them.
+The "fix" field must lead with the exploit payload or attack method so the CTF player can use it immediately.`;
+
+      const systemPrompt = ctfMode ? ctfPrompt : standardPrompt;
+
       try {
         const res = await fetch(providerCfg.url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
           body: JSON.stringify({
             model: providerCfg.model,
-            temperature: 0.1,
+            temperature: ctfMode ? 0.4 : 0.1,
             ...(PROVIDER === 'cerebras' ? { max_completion_tokens: 1500 } : { max_tokens: 1500 }),
             messages: [
               { role: 'system', content: systemPrompt },
@@ -706,7 +787,8 @@ Do NOT flag localStorage usage, hardcoded localhost URLs, or absence of a backen
       } catch (err) {
         showError(`Scan failed: ${err.message}`);
       } finally {
-        btn.disabled = false; spinner.style.display = 'none'; label.textContent = 'Scan code';
+        btn.disabled = false; spinner.style.display = 'none';
+        label.textContent = ctfMode ? 'CTF Scan' : 'Scan code';
         document.getElementById('scan-overlay').classList.remove('active');
       }
     }
