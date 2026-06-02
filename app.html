@@ -645,6 +645,7 @@
       const langHint = getLang() ? `The language is ${getLang()}.` : 'Auto-detect the language.';
 
       const systemPrompt = `You are a professional security code reviewer. Analyze code for security vulnerabilities.
+      Don't give advice on code style, best practices, or performance — only security issues. Focus on critical vulnerabilities that can lead to data breaches, remote code execution, privilege escalation, or significant security risks.
 Always respond with ONLY a valid JSON object — no markdown, no explanation, no code fences.
 Use this exact structure:
 {
