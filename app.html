@@ -257,30 +257,20 @@
       font-family: 'IBM Plex Mono', monospace; font-style: italic;
     }
 
-    /* ── CTF Mode toggle ── */
-    .ctf-toggle-row {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 14px; padding: 10px 14px;
-      border: 1px solid #1e2733; border-radius: 8px;
-      background: #060a0f; transition: border-color 0.2s, background 0.2s;
-    }
-    .ctf-toggle-row.ctf-active { border-color: #ff440040; background: #1a060a; }
-    .ctf-toggle-label {
-      font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
-      color: #4a6080; text-transform: uppercase; letter-spacing: 0.08em;
-      transition: color 0.2s;
-    }
-    .ctf-toggle-row.ctf-active .ctf-toggle-label { color: #ff4444; }
-    .ctf-toggle-desc { font-size: 11px; color: #2a3a50; font-family: 'IBM Plex Mono', monospace; margin-left: 4px; transition: color 0.2s; }
-    .ctf-toggle-row.ctf-active .ctf-toggle-desc { color: #4a1a1a; }
-    .toggle-switch { position: relative; width: 36px; height: 20px; flex-shrink: 0; margin-left: auto; }
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider { position: absolute; inset: 0; background: #1e2733; border-radius: 20px; cursor: pointer; transition: background 0.2s; }
-    .toggle-slider::before { content: ''; position: absolute; width: 14px; height: 14px; left: 3px; top: 3px; background: #4a6080; border-radius: 50%; transition: transform 0.2s, background 0.2s; }
-    .toggle-switch input:checked + .toggle-slider { background: #ff444430; border: 1px solid #ff444460; }
-    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(16px); background: #ff4444; }
+    .tab.ctf-tab.active { background: #ff444418; color: #ff4444; }
+    .tab.ctf-tab:hover:not(.active) { color: #ff6666; }
     .scan-btn.ctf { background: #ff4444; }
     .scan-btn.ctf:hover { background: #ff6666; }
+    .ctf-banner {
+      display: none; align-items: center; gap: 10px;
+      padding: 10px 14px; margin-bottom: 14px;
+      background: #1a060a; border: 1px solid #ff444030;
+      border-radius: 8px; font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace; color: #4a1a1a;
+    }
+    .ctf-banner.active { display: flex; }
+    .ctf-banner-icon { font-size: 14px; }
+    .ctf-banner-text { color: #ff6644; }
 
     /* ── Tour overlay ── */
     .tour-backdrop {
@@ -503,6 +493,12 @@
         <button class="tab active" id="tab-paste" onclick="switchTab('paste')">Paste code</button>
         <button class="tab" id="tab-upload" onclick="switchTab('upload')">Upload file</button>
         <button class="tab" id="tab-compare" onclick="switchTab('compare')">Compare</button>
+        <button class="tab ctf-tab" id="tab-ctf" onclick="switchTab('ctf')">⚑ CTF</button>
+      </div>
+
+      <div class="ctf-banner" id="ctf-banner">
+        <span class="ctf-banner-icon">⚑</span>
+        <span class="ctf-banner-text">CTF mode active — aggressive scanning, exploit payloads included, never returns empty</span>
       </div>
 
       <!-- Compare panel -->
@@ -537,7 +533,7 @@
             <option value="ruby">ruby</option>
           </select>
         </div>
-        <textarea id="code-input" placeholder="// Paste your code here and click Scan...&#10;// SecureScan checks for SQL injection, XSS, exposed secrets, insecure configs, and more."></textarea>
+        <textarea id="code-input" placeholder="// Paste your code here and click Scan...&#10;// SecureScan checks for SQL injection, XSS, exposed secrets, insecure configs, and more.&#10;// Switch to the ⚑ CTF tab for aggressive exploit-focused analysis."></textarea>
       </div>
 
       <div class="upload-zone" id="upload-panel"
@@ -549,17 +545,6 @@
         <div class="file-types">.py · .js · .ts · .java · .c · .cpp · .go · .php · .rb · .sh · .sql</div>
         <div class="file-loaded" id="file-loaded"></div>
         <input type="file" id="file-input" accept=".py,.js,.ts,.java,.c,.cpp,.go,.php,.rb,.sh,.sql,.txt" onchange="handleFile(this)" />
-      </div>
-
-      <div class="ctf-toggle-row" id="ctf-toggle-row">
-        <div>
-          <span class="ctf-toggle-label">⚑ CTF Mode</span>
-          <span class="ctf-toggle-desc">— aggressive, finds anything exploitable</span>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="ctf-toggle" onchange="toggleCTF()" />
-          <span class="toggle-slider"></span>
-        </label>
       </div>
 
       <div class="scan-row">
@@ -616,27 +601,27 @@
     let currentTab = 'paste';
     let uploadedCode = '';
     let currentResult = null;
-    let ctfMode = false;
-
-    function toggleCTF() {
-      ctfMode = document.getElementById('ctf-toggle').checked;
-      document.getElementById('ctf-toggle-row').classList.toggle('ctf-active', ctfMode);
-      const btn = document.getElementById('scan-btn');
-      btn.classList.toggle('ctf', ctfMode);
-      document.getElementById('scan-label').textContent = ctfMode ? 'CTF Scan' : 'Scan code';
-    }
 
     function switchTab(tab) {
       currentTab = tab;
+      const ctf = tab === 'ctf';
+      const compare = tab === 'compare';
       document.getElementById('tab-paste').classList.toggle('active', tab === 'paste');
       document.getElementById('tab-upload').classList.toggle('active', tab === 'upload');
-      document.getElementById('tab-compare').classList.toggle('active', tab === 'compare');
-      document.getElementById('paste-panel').style.display = tab === 'paste' ? 'block' : 'none';
+      document.getElementById('tab-compare').classList.toggle('active', compare);
+      document.getElementById('tab-ctf').classList.toggle('active', ctf);
+      document.getElementById('paste-panel').style.display = (tab === 'paste' || ctf) ? 'block' : 'none';
       const up = document.getElementById('upload-panel');
       up.style.display = tab === 'upload' ? 'block' : 'none';
       up.classList.toggle('active', tab === 'upload');
-      document.getElementById('compare-panel').classList.toggle('active', tab === 'compare');
-      document.getElementById('scan-label').textContent = tab === 'compare' ? 'Compare scans' : 'Scan code';
+      document.getElementById('compare-panel').classList.toggle('active', compare);
+      document.getElementById('ctf-banner').classList.toggle('active', ctf);
+      const btn = document.getElementById('scan-btn');
+      btn.classList.toggle('ctf', ctf);
+      const lbl = document.getElementById('scan-label');
+      if (compare) lbl.textContent = 'Compare scans';
+      else if (ctf) lbl.textContent = 'CTF Scan';
+      else lbl.textContent = 'Scan code';
       document.getElementById('results').style.display = 'none';
     }
     switchTab('paste');
@@ -754,7 +739,7 @@ NEVER return an empty vulnerabilities array — if code exists, find something s
 In CTF context, low-confidence speculative findings are still valuable — include them.
 The "fix" field must lead with the exploit payload or attack method so the CTF player can use it immediately.`;
 
-      const systemPrompt = ctfMode ? ctfPrompt : standardPrompt;
+      const systemPrompt = currentTab === 'ctf' ? ctfPrompt : standardPrompt;
 
       try {
         const res = await fetch(providerCfg.url, {
@@ -762,7 +747,7 @@ The "fix" field must lead with the exploit payload or attack method so the CTF p
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
           body: JSON.stringify({
             model: providerCfg.model,
-            temperature: ctfMode ? 0.4 : 0.1,
+            temperature: currentTab === 'ctf' ? 0.4 : 0.1,
             ...(PROVIDER === 'cerebras' ? { max_completion_tokens: 1500 } : { max_tokens: 1500 }),
             messages: [
               { role: 'system', content: systemPrompt },
@@ -788,7 +773,7 @@ The "fix" field must lead with the exploit payload or attack method so the CTF p
         showError(`Scan failed: ${err.message}`);
       } finally {
         btn.disabled = false; spinner.style.display = 'none';
-        label.textContent = ctfMode ? 'CTF Scan' : 'Scan code';
+        label.textContent = currentTab === 'ctf' ? 'CTF Scan' : 'Scan code';
         document.getElementById('scan-overlay').classList.remove('active');
       }
     }
